@@ -1,0 +1,44 @@
+{
+  "name": "metar-parser",
+  "version": "0.9.0",
+  "description": "Parse METAR information into structured JavaScript object",
+  "directories": {
+    "test": "test",
+    "lib": "lib"
+  },
+  "main": "lib/metar-parser.js",
+  "scripts": {
+    "precommit": "npm test",
+    "test": "eslint *.js bin/* lib/**/*.js test/**/*.js && mocha && npm outdated"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/fboes/metar-parser.git"
+  },
+  "devDependencies": {
+    "beeper": "^1.1.1",
+    "gulp": "^4.0.0",
+    "gulp-eslint": "^5.0.0",
+    "gulp-mocha": "^6.0.0",
+    "gulp-plumber": "^1.2.1",
+    "husky": "^1.3.1",
+    "mocha": "^5.2.0"
+  },
+  "keywords": [
+    "flight",
+    "simulator",
+    "metar",
+    "weather"
+  ],
+  "author": "Frank Boës <info@3960.org> (https://3960.org/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fboes/metar-parser/issues"
+  },
+  "homepage": "https://github.com/fboes/metar-parser#readme",
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run precommit"
+    }
+  }
+}

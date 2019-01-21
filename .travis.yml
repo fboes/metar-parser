@@ -1,0 +1,9 @@
+language: node_js
+node_js:
+  - "node"
+notifications:
+  email:
+    recipients:
+      - info@3960.org
+    on_success: change
+    on_failure: change

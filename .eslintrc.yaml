@@ -1,0 +1,61 @@
+root: true
+extends:
+  - eslint:recommended
+env:
+  node: true
+  mocha: true
+  es6: true
+parserOptions:
+  ecmaVersion: 2017
+rules:
+  arrow-parens:
+    - error
+    - always
+  arrow-body-style:
+    - error
+    - always
+  brace-style: error
+  comma-dangle:
+    - error
+    - never
+  comma-spacing:
+    - error
+    - { before: false, after: true }
+  curly: error
+  eqeqeq: error
+  func-call-spacing:
+    - error
+    - never
+  indent:
+    - error
+    - 2
+    - SwitchCase: 1
+  key-spacing:
+    - error
+    - beforeColon: false
+      mode: minimum
+  linebreak-style:
+    - error
+    - unix
+  max-len:
+    - warn
+    - { code: 120, ignoreStrings: true, ignoreRegExpLiterals: true }
+  no-console: off
+  no-else-return: error
+  no-lonely-if: error
+  no-loop-func: error
+  no-multi-str: error
+  no-undef: error
+  no-unused-vars: error
+  no-var: error
+  semi:
+    - error
+    - always
+  space-before-function-paren:
+    - error
+    - never
+  space-infix-ops: error
+  strict:
+    - error
+    - safe
+  valid-jsdoc: warn
