@@ -3,14 +3,14 @@
 
 Parse METAR information into structured JavaScript object. The structure of the returned object is closely related to the [API response of CheckWX](https://api.checkwx.com/#metar-fields).
 
-Installation: `npm install metar-parser --save`
+Installation: `npm install aewx-metar-parser --save`
 
 Code example
 ------------
 
 ```javascript
 'use strict';
-const metarParser = require('metar-parser');
+const metarParser = require('aewx-metar-parser');
 const metarObject = metarParser('KEYW 050653Z AUTO 19006KT FEW024 BKN039 26/23 A3000 RMK AO2 LTG DSNT W SLP159 T02610228');
 
 ```
