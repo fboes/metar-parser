@@ -9,7 +9,7 @@
   "main": "lib/metar-parser.js",
   "scripts": {
     "precommit": "npm test",
-    "test": "eslint *.js bin/* lib/**/*.js test/**/*.js && mocha && npm outdated"
+    "test": "eslint *.js lib/**/*.js test/**/*.js && mocha && npm outdated"
   },
   "repository": {
     "type": "git",

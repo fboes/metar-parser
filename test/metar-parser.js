@@ -158,7 +158,7 @@ describe('metarParser', function() {
         ['temperature', { celsius: 26 }],
         ['barometer', {kpa: 3000 / 10 / 2.9529988 }]
       ],
-      output: true
+      output: false
     },
     {
       source: 'https://api.checkwx.com/#2019-01-07',
