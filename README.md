@@ -70,7 +70,7 @@ These sites make METAR information publicly available:
 Status
 -------
 
-[![npm version](https://badge.fury.io/js/metar-parser.svg)](https://badge.fury.io/js/metar-parser)
+[![npm version](https://badge.fury.io/js/aewx-metar-parser.svg)](https://badge.fury.io/js/aewx-metar-parser)
 [![Build Status](https://travis-ci.org/fboes/metar-parser.svg?branch=master)](https://travis-ci.org/fboes/metar-parser)
 [![devDependency Status](https://david-dm.org/fboes/metar-parser/dev-status.svg)](https://david-dm.org/fboes/metar-parser?type=dev)
 
