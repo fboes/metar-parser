@@ -5,55 +5,94 @@ Parse METAR information into structured JavaScript object. The structure of the 
 
 Installation: `npm install aewx-metar-parser --save`
 
+Functionality
+-------------
+
+This METAR parser returns the following parts of a METAR string:
+
+* ICAO code
+* Date / time
+* Wind speed (in kts, mps) & direction
+* Visibility (in meters and miles)
+* Weather phenomena
+* Clouds
+* Temperature (in °C & °F) & humidity
+* Barometer pressure (in InHg, kpa & mb)
+
 Code example
 ------------
 
 ```javascript
 'use strict';
 const metarParser = require('aewx-metar-parser');
-const metarObject = metarParser('KEYW 050653Z AUTO 19006KT FEW024 BKN039 26/23 A3000 RMK AO2 LTG DSNT W SLP159 T02610228');
+const metarObject = metarParser('KSFO 070121Z 19023KT 1 1/2SM R28R/6000VP6000FT -RA BKN004 BKN013 OVC035 15/12 A2970 RMK AO2 T01500122 PNO $');
 
 ```
 
 …returns:
 
 ```javascript
-{ raw_text:
-   'KEYW 050653Z AUTO 19006KT FEW024 BKN039 26/23 A3000 RMK AO2 LTG DSNT W SLP159 T02610228',
-  raw_parts:
-   [ 'KEYW',
-     '050653Z',
-     'AUTO',
-     '19006KT',
-     'FEW024',
-     'BKN039',
-     '26/23',
-     'A3000',
-     'RMK',
-     'AO2',
-     'LTG',
-     'DSNT',
-     'W',
-     'SLP159',
-     'T02610228' ],
-  icao: 'KEYW',
-  observed: Date('2019-01-05T06:53:12.540Z'),
-  wind:
-   { degrees: 190,
-     speed_kts: 6,
-     speed_mps: 3.086666654662963,
-     gust_kts: 6,
-     gust_mps: 3.086666654662963 },
-  clouds:
-   [ { code: 'FEW', base_feet_agl: 2400, base_meters_agl: 731.52 },
-     { code: 'BKN', base_feet_agl: 3900, base_meters_agl: 1188.72 } ],
-  ceiling:
-   { code: 'BKN', base_feet_agl: 3900, base_meters_agl: 1188.72 },
-  temperature: { celsius: 26, fahrenheit: 78.80000000000001 },
-  dewpoint: { celsius: 23, fahrenheit: 73.4 },
-  humidity_percent: 83.5653445347348,
-  barometer: { hg: 30, kpa: 101.59164304435207, mb: 1015.9164304435207 } }
+{
+  raw_text: 'KSFO 070121Z 19023KT 1 1/2SM R28R/6000VP6000FT -RA BKN004 BKN013 OVC035 15/12 A2970 RMK AO2 T01500122 PNO $',
+  raw_parts: [
+    'KSFO',
+    '070121Z',
+    '19023KT',
+    '3/2SM',
+    'R28R/6000VP6000FT',
+    '-RA',
+    'BKN004',
+    'BKN013',
+    'OVC035',
+    '15/12',
+    'A2970',
+    'RMK',
+    'AO2',
+    'T01500122',
+    'PNO',
+    '$'
+  ],
+  icao: 'KSFO',
+  observed: 2019-01-07T01:21:03.232Z,
+  wind: {
+    degrees: 190,
+    speed_kts: 23,
+    speed_mps: 11.832222176208026,
+    gust_kts: 23,
+    gust_mps: 11.832222176208026
+  },
+  visibility: {
+    miles: 1.5,
+    meters: 2414.016
+  },
+  conditions: [ '-', 'RA' ],
+  clouds: [
+    { code: 'BKN', base_feet_agl: 400, base_meters_agl: 121.92 },
+    { code: 'BKN', base_feet_agl: 1300, base_meters_agl: 396.24 },
+    { code: 'OVC', base_feet_agl: 3500, base_meters_agl: 1066.8 }
+  ],
+  ceiling: {
+    code: 'OVC',
+    base_feet_agl: 3500,
+    base_meters_agl: 1066.8
+  },
+  temperature: {
+    celsius: 15,
+    fahrenheit: 59
+  },
+  dewpoint: {
+    celsius: 12,
+    fahrenheit: 53.6
+  },
+  humidity_percent: 82.26135295757305,
+  barometer: {
+    hg: 29.7,
+    kpa: 100.57572661390854,
+    mb: 1005.7572661390855
+  }
+}
 ```
+
 
 
 More information on METAR
