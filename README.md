@@ -53,7 +53,7 @@ const metarObject = metarParser('KSFO 070121Z 19023KT 1 1/2SM R28R/6000VP6000FT 
     '$'
   ],
   icao: 'KSFO',
-  observed: 2019-01-07T01:21:03.232Z,
+  observed: Date('2019-01-07T01:21:03.232Z'),
   wind: {
     degrees: 190,
     speed_kts: 23,
