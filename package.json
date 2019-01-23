@@ -1,6 +1,6 @@
 {
   "name": "aewx-metar-parser",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "description": "Parse METAR information into structured JavaScript object",
   "directories": {
     "test": "test",
