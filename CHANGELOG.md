@@ -7,6 +7,7 @@ For detailed information check [`metar-parser`'s releases on Github](https://git
 ------
 
 * 💣 Changed object properties to closer match CheckWX properties. This changes `conditions`, `ceiling`, `visibility`
+* 🎁 Add property `flight_category`
 * 💊 If no visibility is given, assume 10 SM
 
 0.9.3

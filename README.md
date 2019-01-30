@@ -94,7 +94,8 @@ const metarObject = metarParser('KSFO 070121Z 19023KT 1 1/2SM R28R/6000VP6000FT 
     hg: 29.7,
     kpa: 100.57572661390854,
     mb: 1005.7572661390855
-  }
+  },
+  flight_category: 'VFR'
 }
 ```
 
