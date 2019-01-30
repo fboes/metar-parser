@@ -62,9 +62,9 @@ const metarObject = metarParser('KSFO 070121Z 19023KT 1 1/2SM R28R/6000VP6000FT 
     gust_mps: 11.832222176208026
   },
   visibility: {
-    miles: 1.5,
+    miles: "1.5",
     miles_float: 1.5,
-    meters: 2414.016,
+    meters: "2500",
     meters_float: 2414.016
   },
   conditions: [

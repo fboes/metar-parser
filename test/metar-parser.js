@@ -14,7 +14,7 @@ describe('metarParser', function() {
       expectedValues: [
         ['icao', 'KEYW'],
         ['wind', {degrees: 130, speed_kts: 5, gust_kts: 5}],
-        ['visibility', { meters: convert.milesToMeters(10) }],
+        ['visibility', { meters: "16000", meters_float: convert.milesToMeters(10) }],
         ['temperature', { celsius: 24, fahrenheit: 75.2 }],
         ['barometer', {kpa: 3000 / 10 / 2.9529988 }],
         ['flight_category', 'VFR']
@@ -27,7 +27,7 @@ describe('metarParser', function() {
       expectedValues: [
         ['icao', 'KACV'],
         ['wind', {degrees: 70, speed_kts: 3, gust_kts: 3}],
-        ['visibility', { meters: convert.milesToMeters(10) }],
+        ['visibility', { meters: "16000", meters_float: convert.milesToMeters(10) }],
         ['temperature', { celsius: 4, fahrenheit: 39.2 }],
         ['barometer', { hg: 30.01, kpa: convert.inhgToKpa(30.01) }],
         ['flight_category', 'VFR']
@@ -40,7 +40,7 @@ describe('metarParser', function() {
       expectedValues: [
         ['icao', 'KPIE'],
         ['wind', {degrees: 20, speed_kts: 13, gust_kts: 17}],
-        ['visibility', { meters: convert.milesToMeters(10) }],
+        ['visibility', { meters: "16000", meters_float: convert.milesToMeters(10) }],
         ['temperature', { celsius: 17, fahrenheit: 62.6 }],
         ['barometer', { hg: 29.98, kpa: convert.inhgToKpa(29.98) }],
         ['flight_category', 'VFR']
@@ -53,7 +53,7 @@ describe('metarParser', function() {
       expectedValues: [
         ['icao', 'KSPG'],
         ['wind', {degrees: 50, speed_kts: 12, gust_kts: 12}],
-        ['visibility', { meters: convert.milesToMeters(10) }],
+        ['visibility', { meters: "16000", meters_float: convert.milesToMeters(10) }],
         ['temperature', { celsius: 18, fahrenheit: 64.4 }],
         ['barometer', {kpa: 2997 / 10 / 2.9529988 }],
         ['flight_category', 'VFR']
@@ -72,7 +72,7 @@ describe('metarParser', function() {
           gust_kts:  10,
           gust_mps:  convert.ktsToMps(10)
         }],
-        ['visibility', { meters: 9999 }],
+        ['visibility', { meters: "10000", meters_float: 9999 }],
         ['clouds', [{base_feet_agl: 4000, code: 'FEW'}]],
         ['temperature', { celsius: 9, fahrenheit: 48.2 }],
         ['barometer', {kpa: 101.2 }],
@@ -92,7 +92,7 @@ describe('metarParser', function() {
           gust_kts:  convert.mpsToKts(12),
           gust_mps:  12
         }],
-        ['visibility', { meters: 1400 }],
+        ['visibility', { meters: "1500", meters_float: 1400 }],
         ['conditions', [ {code: '+'}, {code: 'SN'} ]],
         ['clouds', [{base_feet_agl: 2200, code: 'BKN'}, {base_feet_agl: 5000, code: 'OVC'}]],
         ['temperature', { celsius: -4, fahrenheit: 24.8 }],
@@ -108,7 +108,7 @@ describe('metarParser', function() {
       expectedValues: [
         ['icao', 'KTTN'],
         ['wind', {degrees: 40, speed_kts: 11, gust_kts: 11}],
-        ['visibility', { meters: convert.milesToMeters(0.5) }],
+        ['visibility', { meters: "1000", meters_float: convert.milesToMeters(0.5) }],
         ['conditions', [ {code: 'VC'}, {code: 'TS'}, {code: 'SN'}, {code: 'FZ'}, {code: 'FG'} ]],
         ['clouds', [{base_feet_agl: 300, code: 'BKN'}, {base_feet_agl: 1000, code: 'OVC'}]],
         ['temperature', { celsius: -2, fahrenheit: 28.4 }],
@@ -123,7 +123,7 @@ describe('metarParser', function() {
       expectedValues: [
         ['icao', 'KEYW'],
         ['wind', {degrees: 130, speed_kts: 5, gust_kts: 5}],
-        ['visibility', { meters: convert.milesToMeters(10) }],
+        ['visibility', { meters: "16000", meters_float: convert.milesToMeters(10) }],
         ['temperature', { celsius: 24 }],
         ['barometer', {kpa: 3000 / 10 / 2.9529988 }],
         ['flight_category', 'VFR']
@@ -136,7 +136,7 @@ describe('metarParser', function() {
       expectedValues: [
         ['icao', 'EDDH'],
         ['wind', {degrees: 290, speed_kts: 13, gust_kts: 13}],
-        ['visibility', { meters: 6000 }],
+        ['visibility', { meters: "6000", meters_float: 6000 }],
         ['clouds', [{base_feet_agl: 600, code: 'SCT'}, {base_feet_agl: 900, code: 'BKN'}]],
         ['temperature', { celsius: 4, fahrenheit: 39.2 }],
         ['barometer', {kpa: 102.8 }],
@@ -150,7 +150,7 @@ describe('metarParser', function() {
       expectedValues: [
         ['icao', 'ETEB'],
         ['wind', {degrees: 260, speed_kts: 10, gust_kts: 10}],
-        ['visibility', { meters: 9999 }],
+        ['visibility', { meters: "10000", meters_float: 9999 }],
         ['clouds', [{base_feet_agl: 9000, code: 'SCT'}]],
         ['temperature', { celsius: 0, fahrenheit: 32 }],
         ['barometer', {kpa: 3052 / 10 / 2.9529988 }],
@@ -177,7 +177,7 @@ describe('metarParser', function() {
       expectedValues: [
         ['icao', 'KSFO'],
         ['conditions', [ {code: '-'}, {code: 'RA'} ]],
-        ['visibility', { meters: convert.milesToMeters(1.5) }],
+        ['visibility', { meters: "2500", meters_float: convert.milesToMeters(1.5) }],
         ['temperature', { celsius: 15, fahrenheit: 59 }],
         ['dewpoint', { celsius: 12, fahrenheit: 53.6 }],
         ['barometer', {kpa: 2970 / 10 / 2.9529988, mb: 2970 / 2.9529988 }],
@@ -189,7 +189,7 @@ describe('metarParser', function() {
       source: 'EHAM with CAVOK',
       metarCode: 'EHAM 100125Z 33004KT CAVOK M00/M01 Q1026 NOSIG',
       expectedValues: [
-        ['visibility', { miles: 10, meters: convert.milesToMeters(10) }],
+        ['visibility', { miles_float: 10, meters: "16000", meters_float: convert.milesToMeters(10) }],
         ['temperature', { celsius: -0, fahrenheit: 32 }],
         ['dewpoint', { celsius: -1, fahrenheit: 30.2 }],
         ['barometer', { hg: 102.6, kpa: 102.6, mb: 10.26 }],
@@ -201,7 +201,7 @@ describe('metarParser', function() {
       source: 'Without VIS because it is CLR',
       metarCode: 'KEYW 291553Z VRB03KT CLR 17/09 A3009 RMK AO2 SLP189 T01670089 $',
       expectedValues: [
-        ['visibility', { miles: 10, meters: convert.milesToMeters(10) }],
+        ['visibility', { miles_float: 10, meters: "16000", meters_float: convert.milesToMeters(10) }],
         ['wind', {degrees: 180, speed_kts: 3, gust_kts: 3}],
         ['temperature', { celsius: 17 }],
         ['dewpoint', { celsius: 9 }],
