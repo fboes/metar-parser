@@ -88,7 +88,7 @@ describe('metarParser', function() {
           gust_mps:  12
         }],
         ['visibility', { meters: 1400 }],
-        ['conditions', [ '+', 'SN' ]],
+        ['conditions', [ {code: '+'}, {code: 'SN'} ]],
         ['clouds', [{base_feet_agl: 2200, code: 'BKN'}, {base_feet_agl: 5000, code: 'OVC'}]],
         ['temperature', { celsius: -4, fahrenheit: 24.8 }],
         ['barometer', {kpa: 102.0 }]
@@ -103,7 +103,7 @@ describe('metarParser', function() {
         ['icao', 'KTTN'],
         ['wind', {degrees: 40, speed_kts: 11, gust_kts: 11}],
         ['visibility', { meters: convert.milesToMeters(0.5) }],
-        ['conditions', [ 'VC', 'TS', 'SN', 'FZ', 'FG' ]],
+        ['conditions', [ {code: 'VC'}, {code: 'TS'}, {code: 'SN'}, {code: 'FZ'}, {code: 'FG'} ]],
         ['clouds', [{base_feet_agl: 300, code: 'BKN'}, {base_feet_agl: 1000, code: 'OVC'}]],
         ['temperature', { celsius: -2, fahrenheit: 28.4 }],
         ['barometer', {kpa: convert.inhgToKpa(30.06) }]
@@ -165,13 +165,13 @@ describe('metarParser', function() {
       metarCode: 'KSFO 070121Z 19023KT 1 1/2SM R28R/6000VP6000FT -RA BKN004 BKN013 OVC035 15/12 A2970 RMK AO2 T01500122 PNO $',
       expectedValues: [
         ['icao', 'KSFO'],
-        ['conditions', [ '-', 'RA' ]],
+        ['conditions', [ {code: '-'}, {code: 'RA'} ]],
         ['visibility', { meters: convert.milesToMeters(1.5) }],
         ['temperature', { celsius: 15, fahrenheit: 59 }],
         ['dewpoint', { celsius: 12, fahrenheit: 53.6 }],
         ['barometer', {kpa: 2970 / 10 / 2.9529988, mb: 2970 / 2.9529988 }]
       ],
-      output: false
+      output: true
     },
     {
       source: 'EHAM with CAVOK',
@@ -181,6 +181,17 @@ describe('metarParser', function() {
         ['temperature', { celsius: -0, fahrenheit: 32 }],
         ['dewpoint', { celsius: -1, fahrenheit: 30.2 }],
         ['barometer', { hg: 102.6, kpa: 102.6, mb: 10.26 }]
+      ],
+      output: false
+    },
+    {
+      source: 'Without VIS because it is CLR',
+      metarCode: 'KEYW 291553Z VRB03KT CLR 17/09 A3009 RMK AO2 SLP189 T01670089 $',
+      expectedValues: [
+        ['visibility', { miles: 10, meters: convert.milesToMeters(10) }],
+        ['wind', {degrees: 180, speed_kts: 3, gust_kts: 3}],
+        ['temperature', { celsius: 17 }],
+        ['dewpoint', { celsius: 9 }]
       ],
       output: false
     }
@@ -207,8 +218,8 @@ describe('metarParser', function() {
       }
       if (metarData.ceiling) {
         assert.ok(metarData.ceiling.code);
-        assert.ok(metarData.ceiling.base_feet_agl);
-        assert.ok(metarData.ceiling.base_meters_agl);
+        assert.ok(metarData.ceiling.feet_agl);
+        assert.ok(metarData.ceiling.meters_agl);
       }
 
       test.expectedValues.forEach((valueTest) => {

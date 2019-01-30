@@ -63,9 +63,14 @@ const metarObject = metarParser('KSFO 070121Z 19023KT 1 1/2SM R28R/6000VP6000FT 
   },
   visibility: {
     miles: 1.5,
-    meters: 2414.016
+    miles_float: 1.5,
+    meters: 2414.016,
+    meters_float: 2414.016
   },
-  conditions: [ '-', 'RA' ],
+  conditions: [
+    { code: '-'},
+    { code: 'RA'}
+  ],
   clouds: [
     { code: 'BKN', base_feet_agl: 400, base_meters_agl: 121.92 },
     { code: 'BKN', base_feet_agl: 1300, base_meters_agl: 396.24 },
@@ -73,8 +78,8 @@ const metarObject = metarParser('KSFO 070121Z 19023KT 1 1/2SM R28R/6000VP6000FT 
   ],
   ceiling: {
     code: 'OVC',
-    base_feet_agl: 3500,
-    base_meters_agl: 1066.8
+    feet_agl: 3500,
+    meters_agl: 1066.8
   },
   temperature: {
     celsius: 15,

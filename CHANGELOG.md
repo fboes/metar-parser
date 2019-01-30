@@ -3,6 +3,12 @@ Change log
 
 For detailed information check [`metar-parser`'s releases on Github](https://github.com/fboes/metar-parser/releases).
 
+0.10.0
+------
+
+* 💣 Changed object properties to closer match CheckWX properties. This changes `conditions`, `ceiling`, `visibility`
+* 💊 If no visibility is given, assume 10 SM
+
 0.9.3
 -----
 
