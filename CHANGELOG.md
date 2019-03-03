@@ -3,6 +3,8 @@ Change log
 
 For detailed information check [`metar-parser`'s releases on Github](https://github.com/fboes/metar-parser/releases).
 
+* 💊 Fix METAR interpretation if wind is missing
+
 0.10.0
 ------
 

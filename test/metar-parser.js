@@ -208,6 +208,14 @@ describe('metarParser', function() {
         ['flight_category', 'VFR']
       ],
       output: false
+    },
+    {
+      source: 'AUTO does stuff?',
+      metarCode: 'KDVO 022335Z AUTO 4SM BR BKN007 BKN013 12/12 A2988 RMK AO2',
+      expectedValues: [
+        ['visibility', { miles_float: 4, meters: "6500", meters_float: convert.milesToMeters(4) }]
+      ],
+      output: false
     }
   ];
 
