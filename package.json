@@ -16,13 +16,13 @@
     "url": "git+ssh://git@github.com/fboes/metar-parser.git"
   },
   "devDependencies": {
-    "beeper": "^1.1.1",
-    "gulp": "^4.0.0",
-    "gulp-eslint": "^5.0.0",
-    "gulp-mocha": "^6.0.0",
+    "beeper": "^2.0.0",
+    "gulp": "^4.0.2",
+    "gulp-eslint": "^6.0.0",
+    "gulp-mocha": "^7.0.1",
     "gulp-plumber": "^1.2.1",
-    "husky": "^1.3.1",
-    "mocha": "^6.0.1"
+    "husky": "^3.0.7",
+    "mocha": "^6.2.1"
   },
   "keywords": [
     "flight",
