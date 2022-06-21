@@ -16,11 +16,6 @@ You will need:
 
 1. A [Github account](https://github.com/) and Git
 2. [NodeJs](https://nodejs.org/) with NPM installed
-3. [Gulp](https://gulpjs.com/) installed globally
-4. [ESLint](https://eslint.org/) installed globally
-5. [Nodeunit](https://github.com/caolan/nodeunit) installed globally
-
-For Gulp, ESLint and Nodeunit call `npm install -g gulp-cli eslint nodeunit` from command line.
 
 Making changes
 --------------

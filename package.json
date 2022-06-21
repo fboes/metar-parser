@@ -9,20 +9,18 @@
   "main": "lib/metar-parser.js",
   "scripts": {
     "precommit": "npm test",
-    "test": "eslint *.js lib/**/*.js test/**/*.js && mocha && npm outdated"
+    "test": "npx eslint lib/**/*.js test/**/*.js && npx mocha && npm outdated",
+    "prepare": "husky install"
   },
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/fboes/metar-parser.git"
   },
   "devDependencies": {
-    "beeper": "^2.0.0",
-    "gulp": "^4.0.2",
-    "gulp-eslint": "^6.0.0",
-    "gulp-mocha": "^7.0.1",
-    "gulp-plumber": "^1.2.1",
-    "husky": "^3.0.7",
-    "mocha": "^6.2.1"
+    "eslint": "^8.18.0",
+    "eslint-config-standard": "^17.0.0",
+    "husky": "^8.0.0",
+    "mocha": "^10.0.0"
   },
   "keywords": [
     "flight",
@@ -35,10 +33,5 @@
   "bugs": {
     "url": "https://github.com/fboes/metar-parser/issues"
   },
-  "homepage": "https://github.com/fboes/metar-parser#readme",
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run precommit"
-    }
-  }
+  "homepage": "https://github.com/fboes/metar-parser#readme"
 }
