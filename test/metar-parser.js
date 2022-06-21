@@ -289,4 +289,19 @@ describe('metarParser', function() {
       });
     });
   });
+
+
+  it('should LFMK 151400Z AUTO 06007KT 030V100 CAVOK ///// Q1017 NOSIG= have QNH = 1017', () => {
+    const metar = 'LFMK 151400Z AUTO 06007KT 030V100 CAVOK ///// Q1017 NOSIG=';
+    const resultat = metarParser(metar);
+    console.log(resultat);
+    assert.deepStrictEqual(resultat.barometer.mb, 1017);
+  });
+
+  it('should LFMK 211130Z AUTO 29005KT 260V320 9999 OVC034 24/20 Q1011= have QNH = 1011', () => {
+    const metar = 'LLFMK 211130Z AUTO 29005KT 260V320 9999 OVC034 24/20 Q1011=';
+    const resultat = metarParser(metar);
+    assert.deepStrictEqual(resultat.barometer.mb, 1011);
+  });
+
 });
