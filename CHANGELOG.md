@@ -5,6 +5,7 @@
 - Changed to TypeScript
 - Set `null` instead of `0` on missing information
 - Fixed `ceiling` property
+- Changed data structure to adhere to https://www.checkwxapi.com/metar
 
 ## 1.0.0
 

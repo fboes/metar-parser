@@ -13,7 +13,7 @@
     "eslint": "npx eslint **/*.ts --fix",
     "tsc": "npx tsc --build",
     "tsc-watch": "npx tsc --watch",
-    "build": "npm run eslint && npm run prettier && npm run tsc"
+    "build": "npm run eslint && npm run prettier && npm run tsc && npm test"
   },
   "repository": {
     "type": "git",
@@ -39,5 +39,6 @@
   "bugs": {
     "url": "https://github.com/fboes/metar-parser/issues"
   },
-  "homepage": "https://github.com/fboes/metar-parser#readme"
+  "homepage": "https://github.com/fboes/metar-parser#readme",
+  "types": "./types/index.d.ts"
 }

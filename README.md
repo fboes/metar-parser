@@ -1,6 +1,6 @@
 # ✈️ METAR parser
 
-Parse METAR information into structured JavaScript object. The structure of the returned object is closely related to the [API response of CheckWX](https://api.checkwx.com/#metar-fields).
+Parse METAR information into structured JavaScript object. The structure of the returned object is closely related to the [API response of CheckWX](https://www.checkwxapi.com/metar).
 
 Installation: `npm install aewx-metar-parser --save`
 
@@ -51,7 +51,7 @@ const metarObject = metarParser(
     "$"
   ],
   "icao": "KSFO",
-  "observed": "2025-02-07T01:21:59.204Z",
+  "observed": "2025-02-07T01:21:49.963Z",
   "wind": {
     "degrees": 190,
     "speed_kts": 23,
@@ -62,27 +62,58 @@ const metarObject = metarParser(
     "degrees_to": null
   },
   "visibility": {
-    "miles": "1.5",
-    "miles_float": 1.5,
-    "meters": "2500",
-    "meters_float": 2414.016
+    "miles": 1.5,
+    "miles_text": "1.5",
+    "meters": 2414.016,
+    "meters_text": "2500"
   },
-  "conditions": [{ "code": "-" }, { "code": "RA" }],
-  "clouds": [
-    { "code": "BKN", "base_feet_agl": 400, "base_meters_agl": 121.92 },
-    { "code": "BKN", "base_feet_agl": 1300, "base_meters_agl": 396.24 },
-    { "code": "OVC", "base_feet_agl": 3500, "base_meters_agl": 1066.8 }
+  "conditions": [
+    {
+      "code": "-"
+    },
+    {
+      "code": "RA"
+    }
   ],
-  "ceiling": { "code": "BKN", "base_feet_agl": 400, "base_meters_agl": 121.92 },
-  "temperature": { "celsius": 15, "fahrenheit": 59 },
-  "dewpoint": { "celsius": 12, "fahrenheit": 53.6 },
-  "humidity_percent": 82.26135295757305,
+  "clouds": [
+    {
+      "code": "BKN",
+      "feet": 400,
+      "meters": 121.92
+    },
+    {
+      "code": "BKN",
+      "feet": 1300,
+      "meters": 396.24
+    },
+    {
+      "code": "OVC",
+      "feet": 3500,
+      "meters": 1066.8
+    }
+  ],
+  "ceiling": {
+    "feet": 400,
+    "meters": 121.92
+  },
+  "temperature": {
+    "celsius": 15,
+    "fahrenheit": 59
+  },
+  "dewpoint": {
+    "celsius": 12,
+    "fahrenheit": 53.6
+  },
+  "humidity": {
+    "percent": 82.26135295757305
+  },
   "barometer": {
     "hg": 29.7,
     "kpa": 100.57572661390854,
     "mb": 1005.7572661390855
   },
-  "flight_category": "IFR"
+  "flight_category": "LIFR",
+  "icao_flight_category": "IFR"
 }
 ```
 

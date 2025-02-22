@@ -1,52 +1,157 @@
 import { convert } from "./convert.js";
 
-export interface MetarObjectCloud {
-  code: "FEW" | "SCT" | "BKN" | "OVC";
-  base_feet_agl: number;
-  base_meters_agl: number;
+export interface MetarCode {
+  code: string;
 }
 
-export interface MetarObject {
+export interface MetarWind {
+  degrees: number | null;
+  speed_kts: number;
+  speed_mps: number;
+  gust_kts: number | null;
+  gust_mps: number | null;
+  degrees_from: number | null;
+  degrees_to: number | null;
+}
+
+export interface MetarVisibility {
+  miles: number;
+  miles_text: string;
+  meters: number;
+  meters_text: string;
+}
+
+export type MetarCloudCode = "FEW" | "SCT" | "BKN" | "OVC";
+
+export interface MetarCloud {
+  code: MetarCloudCode;
+  feet: number;
+  meters: number;
+}
+
+export interface MetarCeiling {
+  feet: number | null;
+  meters: number | null;
+}
+
+export interface MetarTemperature {
+  celsius: number | null;
+  fahrenheit: number | null;
+}
+
+export interface MetarHumidity {
+  percent: number | null;
+}
+
+export interface MetarPressure {
+  hg: number | null;
+  kpa: number | null;
+  mb: number | null;
+}
+
+export type MetarIcaoFlightCategory = "VFR" | "IFR";
+
+export type MetarFlightCategory = MetarIcaoFlightCategory | "MVFR" | "LIFR";
+
+export interface Metar {
   raw_text: string;
   raw_parts: string[];
   icao: string;
   observed: Date;
-  wind: {
-    degrees: number;
-    speed_kts: number;
-    speed_mps: number;
-    gust_kts: number | null;
-    gust_mps: number | null;
-    degrees_from: number | null;
-    degrees_to: number | null;
-  };
-  visibility: {
-    miles: string;
-    miles_float: number;
-    meters: string;
-    meters_float: number;
-  };
-  conditions: {
-    code: string;
-  }[];
-  clouds: MetarObjectCloud[];
-  ceiling: MetarObjectCloud | null;
-  temperature: {
-    celsius: number | null;
-    fahrenheit: number | null;
-  };
-  dewpoint: {
-    celsius: number | null;
-    fahrenheit: number | null;
-  };
-  humidity_percent: number | null;
-  barometer: {
-    hg: number | null;
-    kpa: number | null;
-    mb: number | null;
-  };
-  flight_category: "VFR" | "MVFR" | "IFR" | "LIFR" | null;
-  icao_flight_category: "VFR" | "IFR" | null;
+  wind: MetarWind;
+  visibility: MetarVisibility;
+  conditions: MetarCode[];
+  clouds: MetarCloud[];
+  ceiling: MetarCeiling;
+  temperature: MetarTemperature;
+  dewpoint: MetarTemperature;
+  humidity: MetarHumidity;
+  barometer: MetarPressure;
+  flight_category: MetarFlightCategory | null;
+  icao_flight_category: MetarIcaoFlightCategory | null;
+}
+
+class MetarParserHelpers {
+  /**
+   * @param {Number} value dito
+   * @param {Number} toNext round to next full xxxx
+   * @returns {Number} rounded value
+   */
+  static round(value: number, toNext: number = 500): number {
+    return Math.round(value / toNext) * toNext;
+  }
+
+  static getVisibility(visibility_miles: number, visibility_meters: number): MetarVisibility {
+    return {
+      miles: visibility_miles,
+      miles_text: String(MetarParserHelpers.round(visibility_miles, 0.5)),
+      meters: visibility_meters,
+      meters_text: String(MetarParserHelpers.round(visibility_meters, 500)),
+    };
+  }
+
+  static getCloud(code: MetarCloudCode, hundredFeet: string): MetarCloud {
+    const feet = Number(hundredFeet) * 100;
+    return {
+      code: code,
+      feet: feet,
+      meters: convert.feetToMeters(feet),
+    };
+  }
+
+  static getTemperature(temperatureString: string): MetarTemperature {
+    const temperature = Number(temperatureString.replace("M", "-"));
+    return {
+      celsius: temperature,
+      fahrenheit: convert.celsiusToFahrenheit(temperature),
+    };
+  }
+
+  /**
+   * @see http://andrew.rsmas.miami.edu/bmcnoldy/Humidity.html
+   */
+  static getHumidity(temp: MetarTemperature, dew: MetarTemperature): number | null {
+    if (dew.celsius === null || temp.celsius === null) {
+      return null;
+    }
+    return (
+      (Math.exp((17.625 * dew.celsius) / (243.04 + dew.celsius)) /
+        Math.exp((17.625 * temp.celsius) / (243.04 + temp.celsius))) *
+      100
+    );
+  }
+
+  static getFlightCategory(visibility: MetarVisibility, ceiling: MetarCeiling): MetarFlightCategory {
+    if (visibility.miles > 5 && (!ceiling.feet || ceiling.feet > 3000)) {
+      return "VFR";
+    } else if (visibility.miles >= 3 && (!ceiling.feet || ceiling.feet >= 1000)) {
+      return "MVFR";
+    } else if (visibility.miles >= 1 && (!ceiling.feet || ceiling.feet >= 500)) {
+      return "IFR";
+    }
+    return "LIFR";
+  }
+
+  static getIcaoFLightCategory(visibility: MetarVisibility, ceiling: MetarCeiling): MetarIcaoFlightCategory {
+    return visibility.meters >= 5000 && (!ceiling.feet || ceiling.feet >= 1500) ? "VFR" : "IFR";
+  }
+
+  static getCeiling(clouds: MetarCloud[]): MetarCloud | undefined {
+    return clouds.find((c) => {
+      return c.code === "BKN" || c.code === "OVC";
+    });
+  }
+
+  static metarSplit(metarString: string): string[] {
+    return metarString
+      .trim()
+      .replace(/^METAR\S*?\s/, "")
+      .replace(/(\s)(\d)\s(\d)\/(\d)(SM)/, function (all, a, b, c, d, e) {
+        // convert visbility range like `1 1/2 SM`
+        return a + (Number(b) * Number(d) + Number(c)) + "/" + d + e;
+      })
+      .split(" ");
+  }
 }
 
 /**
@@ -54,29 +159,17 @@ export interface MetarObject {
  * @see     https://api.checkwx.com/#31-single
  * @see     https://www.skybrary.aero/index.php/Meteorological_Terminal_Air_Report_(METAR)
  * @param   {String}  metarString raw
- * @returns {MetarObject} with structured information. The object resembles the API
- *                   reponse of the data property of https://api.checkwx.com/#31-single
+ * @returns {Metar} with structured information. The object resembles the API
+ *                   reponse of the data property of https://www.checkwxapi.com/metar
  */
-export const metarParser = function (metarString: string): MetarObject {
-  const metarArray = metarString
-    .trim()
-    .replace(/^METAR\S*?\s/, "")
-    .replace(/(\s)(\d)\s(\d)\/(\d)(SM)/, function (all, a, b, c, d, e) {
-      // convert visbility range like `1 1/2 SM`
-      return a + (Number(b) * Number(d) + Number(c)) + "/" + d + e;
-    })
-    .split(" ");
-  if (metarArray.length < 3) {
-    throw new Error("Not enough METAR information found");
-  }
-
-  const metarObject: MetarObject = {
+export const metarParser = (metarString: string): Metar => {
+  const metarObject: Metar = {
     raw_text: metarString,
-    raw_parts: metarArray,
+    raw_parts: MetarParserHelpers.metarSplit(metarString),
     icao: "",
     observed: new Date(),
     wind: {
-      degrees: 0,
+      degrees: null,
       speed_kts: 0,
       speed_mps: 0,
       gust_kts: null,
@@ -85,14 +178,17 @@ export const metarParser = function (metarString: string): MetarObject {
       degrees_to: null,
     },
     visibility: {
-      miles: "",
-      miles_float: 10,
-      meters: "",
-      meters_float: 9999,
+      miles: 10,
+      miles_text: "",
+      meters: 9999,
+      meters_text: "",
     },
     conditions: [],
     clouds: [],
-    ceiling: null,
+    ceiling: {
+      feet: null,
+      meters: null,
+    },
     temperature: {
       celsius: null,
       fahrenheit: null,
@@ -101,7 +197,9 @@ export const metarParser = function (metarString: string): MetarObject {
       celsius: null,
       fahrenheit: null,
     },
-    humidity_percent: null,
+    humidity: {
+      percent: null,
+    },
     barometer: {
       hg: null,
       kpa: null,
@@ -111,29 +209,8 @@ export const metarParser = function (metarString: string): MetarObject {
     icao_flight_category: null,
   };
 
-  /**
-   * @see http://andrew.rsmas.miami.edu/bmcnoldy/Humidity.html
-   * @param {Number} temp in celsius
-   * @param {Number} dew  in celsius
-   * @returns {Number} humidity in 1/100
-   */
-  const calcHumidity = function (temp: number, dew: number): number {
-    return Math.exp((17.625 * dew) / (243.04 + dew)) / Math.exp((17.625 * temp) / (243.04 + temp));
-  };
-
-  /**
-   * @param {Number} value dito
-   * @param {Number} toNext round to next full xxxx
-   * @returns {Number} rounded value
-   */
-  const round = function (value: number, toNext: number = 500): number {
-    return Math.round(value / toNext) * toNext;
-  };
-
-  // ---------------------------------------------------------------------------
-
   let mode = 0;
-  metarArray.forEach((metarPart) => {
+  metarObject.raw_parts.forEach((metarPart) => {
     let match;
     if (mode < 3 && metarPart.match(/^(\d+)(?:\/(\d+))?(SM)?$/)) {
       mode = 3; // no wind reported
@@ -172,7 +249,7 @@ export const metarParser = function (metarString: string): MetarObject {
             gust_kts = gust_kts ? convert.kphToMps(gust_kts) : null;
             match[4] = "MPS";
           }
-          const degrees = match[1] === "VRB" ? 180 : Number(match[1]);
+          const degrees = match[1] === "VRB" ? null : Number(match[1]);
 
           metarObject.wind = {
             degrees: degrees,
@@ -195,21 +272,14 @@ export const metarParser = function (metarString: string): MetarObject {
         match = metarPart.match(/^(\d+)(?:\/(\d+))?(SM)?$/);
         if (match) {
           const visibility = match[2] ? Number(match[1]) / Number(match[2]) : Number(match[1]);
-          metarObject.visibility = {
-            miles: String(match[3] && match[3] === "SM" ? visibility : convert.metersToMiles(visibility)),
-            miles_float: match[3] && match[3] === "SM" ? visibility : convert.metersToMiles(visibility),
-            meters: String(match[3] && match[3] === "SM" ? convert.milesToMeters(visibility) : visibility),
-            meters_float: match[3] && match[3] === "SM" ? convert.milesToMeters(visibility) : visibility,
-          };
+          metarObject.visibility = MetarParserHelpers.getVisibility(
+            match[3] && match[3] === "SM" ? visibility : convert.metersToMiles(visibility),
+            match[3] && match[3] === "SM" ? convert.milesToMeters(visibility) : visibility,
+          );
 
           mode = 4;
         } else if (metarPart === "CAVOK" || metarPart === "CLR") {
-          metarObject.visibility = {
-            miles: String(10),
-            miles_float: 10,
-            meters: String(convert.milesToMeters(10)),
-            meters_float: convert.milesToMeters(10),
-          };
+          metarObject.visibility = MetarParserHelpers.getVisibility(10, convert.milesToMeters(10));
           mode = 5; // no clouds & conditions reported
         } else if (metarObject.wind) {
           // Variable wind direction
@@ -241,14 +311,9 @@ export const metarParser = function (metarString: string): MetarObject {
         // Clouds
         match = metarPart.match(/^(FEW|SCT|BKN|OVC)(\d+)/);
         if (match) {
-          const base_feet_agl = Number(match[2]) * 100;
-          const cloud = {
-            code: match[1] as "FEW" | "SCT" | "BKN" | "OVC",
-            base_feet_agl: base_feet_agl,
-            base_meters_agl: convert.feetToMeters(base_feet_agl),
-          };
-          metarObject.clouds.push(cloud);
+          metarObject.clouds.push(MetarParserHelpers.getCloud(match[1] as MetarCloudCode, match[2]));
         }
+        // may occur multiple times
         break;
       case 6:
         // Temperature
@@ -258,17 +323,9 @@ export const metarParser = function (metarString: string): MetarObject {
           break;
         }
         if (match) {
-          const temperature = Number(match[1].replace("M", "-"));
-          const dewpoint = Number(match[2].replace("M", "-"));
-          metarObject.temperature = {
-            celsius: temperature,
-            fahrenheit: convert.celsiusToFahrenheit(temperature),
-          };
-          metarObject.dewpoint = {
-            celsius: dewpoint,
-            fahrenheit: convert.celsiusToFahrenheit(dewpoint),
-          };
-          metarObject.humidity_percent = calcHumidity(temperature, dewpoint) * 100;
+          metarObject.temperature = MetarParserHelpers.getTemperature(match[1]);
+          metarObject.dewpoint = MetarParserHelpers.getTemperature(match[2]);
+          metarObject.humidity.percent = MetarParserHelpers.getHumidity(metarObject.temperature, metarObject.dewpoint);
           mode = 7;
         }
         break;
@@ -289,38 +346,14 @@ export const metarParser = function (metarString: string): MetarObject {
     }
   });
 
-  // Finishing touches
-
-  metarObject.visibility.miles = String(round(metarObject.visibility.miles_float, 0.5));
-  metarObject.visibility.meters = String(round(metarObject.visibility.meters_float));
-
-  const lowestFourOctasCloud: MetarObjectCloud | undefined = metarObject.clouds.find((c) => {
-    return c.code === "BKN" || c.code === "OVC";
-  });
-  if (lowestFourOctasCloud) {
-    metarObject.ceiling = lowestFourOctasCloud;
-  }
-
-  if (metarObject.visibility.miles_float > 5 && (!metarObject.ceiling || metarObject.ceiling.base_feet_agl > 3000)) {
-    metarObject.flight_category = "VFR";
-  } else if (
-    metarObject.visibility.miles_float >= 3 &&
-    (!metarObject.ceiling || metarObject.ceiling.base_feet_agl >= 1000)
-  ) {
-    metarObject.flight_category = "MVFR";
-  } else if (
-    metarObject.visibility.miles_float >= 1 &&
-    (!metarObject.ceiling || metarObject.ceiling.base_feet_agl >= 500)
-  ) {
-    metarObject.flight_category = "IFR";
-  } else {
-    metarObject.flight_category = "LIFR";
-  }
-
-  metarObject.icao_flight_category =
-    metarObject.visibility.meters_float >= 5000 && (!metarObject.ceiling || metarObject.ceiling.base_feet_agl >= 1500)
-      ? "VFR"
-      : "IFR";
+  const ceilingCloud: MetarCloud | undefined = MetarParserHelpers.getCeiling(metarObject.clouds);
+  metarObject.ceiling.feet = ceilingCloud?.feet ?? null;
+  metarObject.ceiling.meters = ceilingCloud?.meters ?? null;
+  metarObject.flight_category = MetarParserHelpers.getFlightCategory(metarObject.visibility, metarObject.ceiling);
+  metarObject.icao_flight_category = MetarParserHelpers.getIcaoFLightCategory(
+    metarObject.visibility,
+    metarObject.ceiling,
+  );
 
   return metarObject;
 };

@@ -11,7 +11,9 @@
     "newLine": "LF",
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
-    "allowJs": true
+    "declarationMap": true,
+    "declaration": true,
+    "declarationDir": "./types"
   },
   "include": ["./src/**/*"]
 }
