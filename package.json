@@ -8,7 +8,9 @@
   },
   "main": "dist/metar-parser.js",
   "scripts": {
-    "test": "node ./dist/convert.test.js && node ./dist/metar-parser.test.js",
+    "test": "node --test 'dist/**/*.test.js'",
+    "test:coverage": "node --test --experimental-test-coverage 'dist/**/*.test.js'",
+    "test:watch": "node --test --watch 'dist/**/*.test.js'",
     "prettier": "npx prettier --cache --write .",
     "eslint": "npx eslint **/*.ts --fix",
     "tsc": "npx tsc --build",

@@ -1,5 +1,9 @@
 # Change log
 
+## [Unreleased]
+
+- Changed testing to standard Node.js testing suite
+
 ## 2.0.0
 
 - Changed to TypeScript
