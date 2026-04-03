@@ -1,5 +1,12 @@
 # Change log
 
+## [Unreleased]
+
+## [2.0.1]
+
+- Changed testing to standard Node.js testing suite
+- Fixed `types` in `package.json`
+
 ## 2.0.0
 
 - Changed to TypeScript
