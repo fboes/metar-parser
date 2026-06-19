@@ -57,7 +57,10 @@ export interface Metar {
   raw_text: string;
   raw_parts: string[];
   icao: string;
-  observed: Date;
+  observed: Date | null;
+  forecastFrom: Date | null;
+  forecastTo: Date | null;
+
   wind: MetarWind;
   visibility: MetarVisibility;
   conditions: MetarCode[];
@@ -145,7 +148,7 @@ class MetarParserHelpers {
   static metarSplit(metarString: string): string[] {
     return metarString
       .trim()
-      .replace(/^METAR\S*?\s/, "")
+      .replace(/^(?:METAR|TAF)\S*?\s/, "")
       .replace(/(\s)(\d)\s(\d)\/(\d)(SM)/, function (all, a, b, c, d, e) {
         // convert visbility range like `1 1/2 SM`
         return a + (Number(b) * Number(d) + Number(c)) + "/" + d + e;
@@ -167,7 +170,9 @@ export const metarParser = (metarString: string): Metar => {
     raw_text: metarString,
     raw_parts: MetarParserHelpers.metarSplit(metarString),
     icao: "",
-    observed: new Date(),
+    observed: null,
+    forecastFrom: null,
+    forecastTo: null,
     wind: {
       degrees: null,
       speed_kts: 0,
@@ -212,13 +217,13 @@ export const metarParser = (metarString: string): Metar => {
   let mode = 0;
   metarObject.raw_parts.forEach((metarPart) => {
     let match;
-    if (mode < 3 && metarPart.match(/^(\d+)(?:\/(\d+))?(SM)?$/)) {
+    if (mode > 1 && mode < 3 && metarPart.match(/^(\d+)(?:\/(\d+))?(SM)?$/)) {
       mode = 3; // no wind reported
     }
-    if (mode < 5 && metarPart.match(/^(FEW|SCT|BKN|OVC)(\d+)?/)) {
+    if (mode > 1 && mode < 5 && metarPart.match(/^(FEW|SCT|BKN|OVC)(\d+)?/)) {
       mode = 5; // no visibility / conditions reported
     }
-    if (mode < 6 && metarPart.match(/(^M?\d+\/M?\d+$)|(^\/\/\/\/\/)/)) {
+    if (mode > 1 && mode < 6 && metarPart.match(/(^M?\d+\/M?\d+$)|(^\/\/\/\/\/)/)) {
       mode = 6; // end of clouds
     }
     switch (mode) {
@@ -235,6 +240,21 @@ export const metarParser = (metarString: string): Metar => {
           metarObject.observed.setUTCDate(Number(match[1]));
           metarObject.observed.setUTCHours(Number(match[2]));
           metarObject.observed.setUTCMinutes(Number(match[3]));
+          mode = 2;
+        }
+
+        // Forecast Date
+        match = metarPart.match(/^(\d\d)(\d\d)\/(\d\d)(\d\d)$/);
+        if (match) {
+          metarObject.forecastFrom = new Date();
+          metarObject.forecastFrom.setUTCDate(Number(match[1]));
+          metarObject.forecastFrom.setUTCHours(Number(match[2]));
+          metarObject.forecastFrom.setUTCMinutes(0);
+
+          metarObject.forecastTo = new Date();
+          metarObject.forecastTo.setUTCDate(Number(match[3]));
+          metarObject.forecastTo.setUTCHours(Number(match[4]));
+          metarObject.forecastTo.setUTCMinutes(0);
           mode = 2;
         }
         break;

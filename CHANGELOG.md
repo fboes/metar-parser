@@ -1,6 +1,8 @@
 # Change log
 
-## [Unreleased]
+## [3.0.0] - 2026-06-19
+
+- Added TAF support
 
 ## [2.0.1]
 

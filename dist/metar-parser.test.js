@@ -20,9 +20,9 @@ describe("METAR Parsing Tests", () => {
         const metar = c.name;
         const result = metarParser(metar);
         assert.deepStrictEqual(result.icao, "KACV");
-        assert.deepStrictEqual(result.observed.getUTCDate(), 4);
-        assert.deepStrictEqual(result.observed.getUTCHours(), 10);
-        assert.deepStrictEqual(result.observed.getUTCMinutes(), 53);
+        assert.deepStrictEqual(result.observed?.getUTCDate(), 4);
+        assert.deepStrictEqual(result.observed?.getUTCHours(), 10);
+        assert.deepStrictEqual(result.observed?.getUTCMinutes(), 53);
         assert.deepStrictEqual(result.wind.degrees, 70);
         assert.deepStrictEqual(result.wind.speed_kts, 3);
         assert.deepStrictEqual(result.wind.gust_kts, null);
@@ -45,9 +45,9 @@ describe("METAR Parsing Tests", () => {
         const metar = c.name;
         const result = metarParser(metar);
         assert.deepStrictEqual(result.icao, "KPIE");
-        assert.deepStrictEqual(result.observed.getUTCDate(), 26);
-        assert.deepStrictEqual(result.observed.getUTCHours(), 8);
-        assert.deepStrictEqual(result.observed.getUTCMinutes(), 53);
+        assert.deepStrictEqual(result.observed?.getUTCDate(), 26);
+        assert.deepStrictEqual(result.observed?.getUTCHours(), 8);
+        assert.deepStrictEqual(result.observed?.getUTCMinutes(), 53);
         assert.deepStrictEqual(result.wind.degrees, 20);
         assert.deepStrictEqual(result.wind.speed_kts, 13);
         assert.deepStrictEqual(result.wind.gust_kts, 17);
@@ -291,5 +291,22 @@ describe("METAR Parsing Tests", () => {
         const result = metarParser(metar);
         assert.deepStrictEqual(result.icao, "KJFK");
         assert.deepStrictEqual(result.ceiling.feet, 20000);
+    });
+    it("METAR KLAX 180845Z COR 19004G10KT 10SM SHRA FEW018 SCT028 OVC040 18/02 A2990 RMK RAE10 P0000 T01920101", (c) => {
+        const metar = c.name;
+        const result = metarParser(metar);
+        assert.deepStrictEqual(result.icao, "KLAX");
+        assert.deepStrictEqual(result.wind.degrees, 190);
+        assert.deepStrictEqual(result.clouds.length, 3);
+    });
+    it("TAF KNUW 2615/2715 13020G36KT 9999 VCSH SCT010 BKN030 OVC060 620509 560009 550909 QNH2916INS ", (c) => {
+        const metar = c.name;
+        const result = metarParser(metar);
+        //console.log(result);
+        assert.deepStrictEqual(result.icao, "KNUW");
+        assert.deepStrictEqual(result.wind.degrees, 130);
+        assert.deepStrictEqual(result.clouds.length, 3);
+        assert.deepStrictEqual(result.forecastFrom?.getUTCDate(), 26);
+        assert.deepStrictEqual(result.forecastTo?.getUTCDate(), 27);
     });
 });
