@@ -290,6 +290,8 @@ describe("METAR Parsing Tests", () => {
     const metar = c.name;
     const result = metarParser(metar);
 
+    //console.log(result);
+
     assert.deepStrictEqual(result.icao, "KDVO");
     assert.deepStrictEqual(result.visibility.miles, 4);
     assert.deepStrictEqual(result.visibility.meters_text, "6500");
@@ -335,16 +337,34 @@ describe("METAR Parsing Tests", () => {
     assert.deepStrictEqual(result.clouds.length, 3);
   });
 
-  it("TAF KNUW 2615/2715 13020G36KT 9999 VCSH SCT010 BKN030 OVC060 620509 560009 550909 QNH2916INS ", (c) => {
+  it(`TAF KJFK 251130Z 2512/2612 31012KT P6SM FEW040 BKN250
+FM251800 27015G25KT P6SM SCT030 BKN060
+TEMPO 2520/2524 4SM -SHRA BKN025
+FM260200 33010KT P6SM FEW050`, (c) => {
     const metar = c.name;
     const result = metarParser(metar);
 
-    //console.log(result);
+    // console.log(result);
 
-    assert.deepStrictEqual(result.icao, "KNUW");
-    assert.deepStrictEqual(result.wind.degrees, 130);
-    assert.deepStrictEqual(result.clouds.length, 3);
-    assert.deepStrictEqual(result.forecastFrom?.getUTCDate(), 26);
-    assert.deepStrictEqual(result.forecastTo?.getUTCDate(), 27);
+    assert.deepStrictEqual(result.icao, "KJFK");
+    assert.deepStrictEqual(result.wind.degrees, 310);
+    assert.deepStrictEqual(result.clouds.length, 2);
+    assert.deepStrictEqual(result.forecastFrom?.getUTCDate(), 25);
+    assert.deepStrictEqual(result.forecastTo?.getUTCDate(), 26);
+  });
+
+  it(`TAF EGOV 191336Z 1915/1918 20018KT 9999 BKN004
+TEMPO 1915/1916 19020G30KT 2000 +SHRA BKN002 BKN020CB
+TEMPO 1916/1918 1200 +DZ BKN001`, (c) => {
+    const metar = c.name;
+    const result = metarParser(metar);
+
+    // console.log(result);
+
+    assert.deepStrictEqual(result.icao, "EGOV");
+    assert.deepStrictEqual(result.wind.degrees, 200);
+    assert.deepStrictEqual(result.clouds.length, 1);
+    assert.deepStrictEqual(result.forecastFrom?.getUTCDate(), 19);
+    assert.deepStrictEqual(result.forecastTo?.getUTCDate(), 19);
   });
 });

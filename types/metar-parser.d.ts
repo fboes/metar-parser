@@ -44,7 +44,7 @@ export interface Metar {
     raw_text: string;
     raw_parts: string[];
     icao: string;
-    observed: Date | null;
+    observed: Date;
     forecastFrom: Date | null;
     forecastTo: Date | null;
     wind: MetarWind;

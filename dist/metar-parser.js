@@ -65,12 +65,12 @@ class MetarParserHelpers {
     static metarSplit(metarString) {
         return metarString
             .trim()
-            .replace(/^(?:METAR|TAF)\S*?\s/, "")
             .replace(/(\s)(\d)\s(\d)\/(\d)(SM)/, function (all, a, b, c, d, e) {
             // convert visbility range like `1 1/2 SM`
             return a + (Number(b) * Number(d) + Number(c)) + "/" + d + e;
         })
-            .split(" ");
+            .replace(/\n/, " \\n ")
+            .split(/\s+/);
     }
 }
 /**
@@ -86,7 +86,7 @@ export const metarParser = (metarString) => {
         raw_text: metarString,
         raw_parts: MetarParserHelpers.metarSplit(metarString),
         icao: "",
-        observed: null,
+        observed: new Date(),
         forecastFrom: null,
         forecastTo: null,
         wind: {
@@ -130,16 +130,24 @@ export const metarParser = (metarString) => {
         icao_flight_category: null,
     };
     let mode = 0;
+    let isTAF = false;
     metarObject.raw_parts.forEach((metarPart) => {
         let match;
-        if (mode > 1 && mode < 3 && metarPart.match(/^(\d+)(?:\/(\d+))?(SM)?$/)) {
+        if (mode === 0 && metarPart.match(/^(METAR|TAF)$/)) {
+            isTAF = metarPart === "TAF";
+            return;
+        }
+        if (!isTAF && mode > 1 && mode < 3 && metarPart.match(/^(\d+)(?:\/(\d+))?(SM)?$/)) {
             mode = 3; // no wind reported
         }
-        if (mode > 1 && mode < 5 && metarPart.match(/^(FEW|SCT|BKN|OVC)(\d+)?/)) {
+        if (mode > 2 && mode < 5 && metarPart.match(/^(FEW|SCT|BKN|OVC)(\d+)?/)) {
             mode = 5; // no visibility / conditions reported
         }
-        if (mode > 1 && mode < 6 && metarPart.match(/(^M?\d+\/M?\d+$)|(^\/\/\/\/\/)/)) {
+        if (mode > 3 && mode < 6 && metarPart.match(/(^M?\d+\/M?\d+$)|(^\/\/\/\/\/)/)) {
             mode = 6; // end of clouds
+        }
+        if (metarPart.match(/^(TEMPO|FM\d+|\\n)$/)) {
+            mode = 8;
         }
         switch (mode) {
             case 0:
@@ -155,19 +163,6 @@ export const metarParser = (metarString) => {
                     metarObject.observed.setUTCDate(Number(match[1]));
                     metarObject.observed.setUTCHours(Number(match[2]));
                     metarObject.observed.setUTCMinutes(Number(match[3]));
-                    mode = 2;
-                }
-                // Forecast Date
-                match = metarPart.match(/^(\d\d)(\d\d)\/(\d\d)(\d\d)$/);
-                if (match) {
-                    metarObject.forecastFrom = new Date();
-                    metarObject.forecastFrom.setUTCDate(Number(match[1]));
-                    metarObject.forecastFrom.setUTCHours(Number(match[2]));
-                    metarObject.forecastFrom.setUTCMinutes(0);
-                    metarObject.forecastTo = new Date();
-                    metarObject.forecastTo.setUTCDate(Number(match[3]));
-                    metarObject.forecastTo.setUTCHours(Number(match[4]));
-                    metarObject.forecastTo.setUTCMinutes(0);
                     mode = 2;
                 }
                 break;
@@ -197,11 +192,25 @@ export const metarParser = (metarString) => {
                         metarObject.wind.degrees_to = 359;
                     }
                     mode = 3;
+                    break;
+                }
+                // Forecast Date
+                match = metarPart.match(/^(\d\d)(\d\d)\/(\d\d)(\d\d)$/);
+                if (match) {
+                    metarObject.forecastFrom = new Date();
+                    metarObject.forecastFrom.setUTCDate(Number(match[1]));
+                    metarObject.forecastFrom.setUTCHours(Number(match[2]));
+                    metarObject.forecastFrom.setUTCMinutes(0);
+                    metarObject.forecastTo = new Date();
+                    metarObject.forecastTo.setUTCDate(Number(match[3]));
+                    metarObject.forecastTo.setUTCHours(Number(match[4]));
+                    metarObject.forecastTo.setUTCMinutes(0);
+                    break;
                 }
                 break;
             case 3:
                 // Visibility
-                match = metarPart.match(/^(\d+)(?:\/(\d+))?(SM)?$/);
+                match = metarPart.match(/^P?(\d+)(?:\/(\d+))?(SM)?$/);
                 if (match) {
                     const visibility = match[2] ? Number(match[1]) / Number(match[2]) : Number(match[1]);
                     metarObject.visibility = MetarParserHelpers.getVisibility(match[3] && match[3] === "SM" ? visibility : convert.metersToMiles(visibility), match[3] && match[3] === "SM" ? convert.milesToMeters(visibility) : visibility);
