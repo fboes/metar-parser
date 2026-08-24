@@ -1,5 +1,9 @@
 # Change log
 
+## [Unreleased]
+
+- Added array safe guarding
+
 ## [3.0.0] - 2026-06-19
 
 - Added TAF support

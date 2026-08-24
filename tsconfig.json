@@ -15,7 +15,8 @@
     "declaration": true,
     "declarationDir": "./types",
     "types": ["node"],
-    "verbatimModuleSyntax": true
+    "verbatimModuleSyntax": true,
+    "noUncheckedIndexedAccess": true
   },
   "include": ["./src/**/*"]
 }

@@ -248,25 +248,12 @@ export const metarParser = (metarString) => {
                 break;
             case 5:
                 // Clouds
-                match = metarPart.match(/^(FEW|SCT|BKN|OVC)(\d+)/);
-                if (match) {
-                    metarObject.clouds.push(MetarParserHelpers.getCloud(match[1], match[2]));
-                }
+                parseClouds(metarPart, metarObject);
                 // may occur multiple times
                 break;
             case 6:
                 // Temperature
-                match = metarPart.match(/^(M?\d+)\/(M?\d+)$/);
-                if (match === null && metarPart.match(/^\/\/\/\/\/$/)) {
-                    mode = 7;
-                    break;
-                }
-                if (match) {
-                    metarObject.temperature = MetarParserHelpers.getTemperature(match[1]);
-                    metarObject.dewpoint = MetarParserHelpers.getTemperature(match[2]);
-                    metarObject.humidity.percent = MetarParserHelpers.getHumidity(metarObject.temperature, metarObject.dewpoint);
-                    mode = 7;
-                }
+                mode = parseTemperature(metarPart, metarObject, mode);
                 break;
             case 7:
                 // Pressure
@@ -291,3 +278,22 @@ export const metarParser = (metarString) => {
     metarObject.icao_flight_category = MetarParserHelpers.getIcaoFLightCategory(metarObject.visibility, metarObject.ceiling);
     return metarObject;
 };
+function parseClouds(metarPart, metarObject) {
+    const [, cloudType, cloudAltitude] = metarPart.match(/^(FEW|SCT|BKN|OVC)(\d+)/) || [];
+    if (cloudType && cloudAltitude) {
+        metarObject.clouds.push(MetarParserHelpers.getCloud(cloudType, cloudAltitude));
+    }
+}
+function parseTemperature(metarPart, metarObject, mode) {
+    const [, temp, dewpoint] = metarPart.match(/^(M?\d+)\/(M?\d+)$/) || [];
+    if (temp === undefined && metarPart.match(/^\/\/\/\/\/$/)) {
+        return 7;
+    }
+    if (temp && dewpoint) {
+        metarObject.temperature = MetarParserHelpers.getTemperature(temp);
+        metarObject.dewpoint = MetarParserHelpers.getTemperature(dewpoint);
+        metarObject.humidity.percent = MetarParserHelpers.getHumidity(metarObject.temperature, metarObject.dewpoint);
+        return 7;
+    }
+    return mode;
+}
