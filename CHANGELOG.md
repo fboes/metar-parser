@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+- Updated ESLint
+
+## [3.0.2] - 2026-08-25
+
 - Added array safe guarding
 
 ## [3.0.0] - 2026-06-19

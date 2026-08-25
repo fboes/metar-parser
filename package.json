@@ -22,12 +22,11 @@
     "url": "git+ssh://git@github.com/fboes/metar-parser.git"
   },
   "devDependencies": {
-    "@eslint/js": "^9.20.0",
+    "@eslint/js": "^10.0.1",
     "@types/node": "^22.19.21",
-    "eslint": "^9.20.1",
-    "eslint-plugin-prettier": "^5.2.3",
+    "eslint": "^10.9.1",
     "globals": "^15.15.0",
-    "typescript-eslint": "^8.24.1"
+    "typescript-eslint": "^8.68.0"
   },
   "keywords": [
     "flight",
