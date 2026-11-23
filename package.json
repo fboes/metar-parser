@@ -15,7 +15,7 @@
     "eslint": "npx eslint **/*.ts --fix",
     "tsc": "npx tsc --build",
     "tsc-watch": "npx tsc --watch",
-    "precommit" : "npm run eslint && npm run prettier && npm test",
+    "precommit": "npm run eslint && npm run prettier && npm test",
     "prepack": "npm run tsc && npm precommit"
   },
   "repository": {
@@ -27,6 +27,7 @@
     "@types/node": "^22.19.21",
     "eslint": "^10.9.1",
     "globals": "^15.15.0",
+    "prettier": "^3.10.1",
     "typescript-eslint": "^8.68.0"
   },
   "keywords": [
