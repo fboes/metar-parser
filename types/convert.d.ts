@@ -1,15 +1,10 @@
-/**
- * Convert units
- */
-export declare const convert: {
-    celsiusToFahrenheit: (celsius: number) => number;
-    feetToMeters: (feet: number) => number;
-    milesToMeters: (miles: number) => number;
-    metersToMiles: (meters: number) => number;
-    inhgToKpa: (inHg: number) => number;
-    kpaToInhg: (kpa: number) => number;
-    kphToMps: (kph: number) => number;
-    mpsToKts: (mps: number) => number;
-    ktsToMps: (kts: number) => number;
-};
+export declare function celsiusToFahrenheit(celsius: number): number;
+export declare function feetToMeters(feet: number): number;
+export declare function milesToMeters(miles: number): number;
+export declare function metersToMiles(meters: number): number;
+export declare function inhgToKpa(inHg: number): number;
+export declare function kpaToInhg(kpa: number): number;
+export declare function kphToMps(kph: number): number;
+export declare function mpsToKts(mps: number): number;
+export declare function ktsToMps(kts: number): number;
 //# sourceMappingURL=convert.d.ts.map

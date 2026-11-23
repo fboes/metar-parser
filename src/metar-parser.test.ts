@@ -1,7 +1,7 @@
 import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
 import { metarParser } from "./metar-parser.js";
-import { convert } from "./convert.js";
+import * as convert from "./convert.js";
 
 describe("METAR Parsing Tests", () => {
   it("KEYW 041053Z AUTO 13005KT 10SM CLR 24/22 A3000 RMK AO2 SLP159 T02440222", (c) => {

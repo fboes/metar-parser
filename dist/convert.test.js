@@ -1,6 +1,6 @@
 import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
-import { convert } from "./convert.js";
+import * as convert from "./convert.js";
 describe("Conversion Tests", () => {
     it("should convert temperature units correctly", () => {
         const fahrenheit = convert.celsiusToFahrenheit(1);
