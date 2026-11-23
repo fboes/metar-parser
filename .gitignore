@@ -1,6 +1,7 @@
 /node_modules
 /*.code-workspace
 /.vscode
+/*.tsbuildinfo
 /tmp/*
 !/tmp/.gitkeep
 .DS_Store

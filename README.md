@@ -133,8 +133,8 @@ These sites make METAR information publicly available:
 
 ## Status
 
-[![npm version](https://badge.fury.io/js/aewx-metar-parser.svg)](https://badge.fury.io/js/aewx-metar-parser)
-[![devDependency Status](https://david-dm.org/fboes/metar-parser/dev-status.svg)](https://david-dm.org/fboes/metar-parser?type=dev)
+[![NPM Version](https://img.shields.io/npm/v/aewx-metar-parser)](https://www.npmjs.com/package/aewx-metar-parser)
+![GitHub License](https://img.shields.io/github/license/fboes/metar-parser)
 
 ## Legal stuff
 
