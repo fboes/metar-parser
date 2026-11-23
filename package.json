@@ -1,6 +1,6 @@
 {
   "name": "aewx-metar-parser",
-  "version": "3.0.2",
+  "version": "4.0.0",
   "description": "Parse METAR information into structured JavaScript object",
   "directories": {
     "test": "test",
@@ -16,7 +16,7 @@
     "tsc": "npx tsc --build",
     "tsc-watch": "npx tsc --watch",
     "precommit": "npm run eslint && npm run prettier && npm test",
-    "prepack": "npm run tsc && npm precommit"
+    "prepack": "npm run tsc && npm run precommit"
   },
   "repository": {
     "type": "git",
