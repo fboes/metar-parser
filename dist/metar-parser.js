@@ -13,7 +13,6 @@ export const metarParser = (metarString) => {
     let mode = 0;
     let isTAF = false;
     metarObject.raw_parts.forEach((metarPart) => {
-        let match;
         if (mode === 0 && metarPart.match(/^(METAR|TAF)$/)) {
             isTAF = metarPart === "TAF";
             return;
@@ -36,44 +35,25 @@ export const metarParser = (metarString) => {
                 mode = 1;
                 break;
             case 1:
-                // Observed Date
-                match = metarPart.match(/^(\d\d)(\d\d)(\d\d)Z$/);
-                if (match) {
-                    metarObject.observed = new Date();
-                    metarObject.observed.setUTCDate(Number(match[1]));
-                    metarObject.observed.setUTCHours(Number(match[2]));
-                    metarObject.observed.setUTCMinutes(Number(match[3]));
-                    mode = 2;
-                }
+                mode = parseObservedDate(metarPart, metarObject, mode);
                 break;
             case 2:
                 mode = parseWind(metarPart, metarObject, mode);
                 if (mode === 2) {
                     parseForecastDate(metarPart, metarObject);
+                    // stays in mode
                 }
                 break;
             case 3:
                 mode = parseVisibility(metarPart, metarObject, mode);
                 if (mode === 3) {
                     parseVariableWind(metarPart, metarObject);
+                    // stays in mode
                 }
                 break;
             case 4:
-                // Conditions
-                match = metarPart.match(/^(\+|-|VC|RE)?([A-Z][A-Z])([A-Z][A-Z])?([A-Z][A-Z])?$/);
-                if (match) {
-                    if (!metarObject.conditions) {
-                        metarObject.conditions = [];
-                    }
-                    match
-                        .filter((m, index) => {
-                        return index !== 0 && m;
-                    })
-                        .forEach((m) => {
-                        metarObject.conditions.push({ code: m });
-                    });
-                    // may occur multiple times
-                }
+                parseCondition(metarPart, metarObject);
+                // may occur multiple times
                 break;
             case 5:
                 parseClouds(metarPart, metarObject);
@@ -93,6 +73,17 @@ export const metarParser = (metarString) => {
     return metarObject;
 };
 // -----------------------------------------------------------------------------
+function parseObservedDate(metarPart, metarObject, mode) {
+    const match = metarPart.match(/^(\d\d)(\d\d)(\d\d)Z$/);
+    if (!match) {
+        return mode;
+    }
+    metarObject.observed = new Date();
+    metarObject.observed.setUTCDate(Number(match[1]));
+    metarObject.observed.setUTCHours(Number(match[2]));
+    metarObject.observed.setUTCMinutes(Number(match[3]));
+    return 2;
+}
 function parseWind(metarPart, metarObject, mode) {
     // Case: Unkonw wind
     if (metarPart.match(/^\/+(KT|MPS|KPH)$/)) {
@@ -126,17 +117,17 @@ function parseWind(metarPart, metarObject, mode) {
     return 3;
 }
 function parseForecastDate(metarPart, metarObject) {
-    const match = metarPart.match(/^(\d\d)(\d\d)\/(\d\d)(\d\d)$/);
-    if (!match) {
+    const [, fromDate, fromHours, toDate, toHours] = metarPart.match(/^(\d\d)(\d\d)\/(\d\d)(\d\d)$/) || [];
+    if (!fromDate) {
         return;
     }
     metarObject.forecastFrom = new Date();
-    metarObject.forecastFrom.setUTCDate(Number(match[1]));
-    metarObject.forecastFrom.setUTCHours(Number(match[2]));
+    metarObject.forecastFrom.setUTCDate(Number(fromDate));
+    metarObject.forecastFrom.setUTCHours(Number(fromHours));
     metarObject.forecastFrom.setUTCMinutes(0);
     metarObject.forecastTo = new Date();
-    metarObject.forecastTo.setUTCDate(Number(match[3]));
-    metarObject.forecastTo.setUTCHours(Number(match[4]));
+    metarObject.forecastTo.setUTCDate(Number(toDate));
+    metarObject.forecastTo.setUTCHours(Number(toHours));
     metarObject.forecastTo.setUTCMinutes(0);
 }
 function parseVisibility(metarPart, metarObject, mode) {
@@ -162,10 +153,25 @@ function parseVariableWind(metarPart, metarObject) {
     if (!metarObject.wind) {
         return;
     }
-    const match = metarPart.match(/^(\d+)V(\d+)$/);
+    const [, degreesFrom, degreesTo] = metarPart.match(/^(\d+)V(\d+)$/) || [];
+    if (degreesFrom || degreesTo) {
+        metarObject.wind.degrees_from = Number(degreesFrom);
+        metarObject.wind.degrees_to = Number(degreesTo);
+    }
+}
+function parseCondition(metarPart, metarObject) {
+    const match = metarPart.match(/^(\+|-|VC|RE)?([A-Z][A-Z])([A-Z][A-Z])?([A-Z][A-Z])?$/);
     if (match) {
-        metarObject.wind.degrees_from = Number(match[1]);
-        metarObject.wind.degrees_to = Number(match[2]);
+        if (!metarObject.conditions) {
+            metarObject.conditions = [];
+        }
+        match
+            .filter((m, index) => {
+            return index !== 0 && m;
+        })
+            .forEach((m) => {
+            metarObject.conditions.push({ code: m });
+        });
     }
 }
 function parseClouds(metarPart, metarObject) {
@@ -185,16 +191,16 @@ function parseTemperature(metarPart, metarObject, mode) {
     return mode;
 }
 function parsePressure(metarPart, metarObject, mode) {
-    const match = metarPart.match(/^(Q|A)(\d+)/);
-    if (!match) {
+    const [, unit, value] = metarPart.match(/^(Q|A)(\d+)/) || [];
+    if (!unit || !value) {
         return mode;
     }
-    let hg = Number(match[2]);
-    hg /= match[1] === "Q" ? 10 : 100;
+    let hg = Number(value);
+    hg /= unit === "Q" ? 10 : 100;
     metarObject.barometer = {
-        hg: match[1] === "Q" ? convert.kpaToInhg(hg) : hg,
-        kpa: match[1] === "Q" ? hg : convert.inhgToKpa(hg),
-        mb: match[1] === "Q" ? hg * 10 : convert.inhgToKpa(hg * 10),
+        hg: unit === "Q" ? convert.kpaToInhg(hg) : hg,
+        kpa: unit === "Q" ? hg : convert.inhgToKpa(hg),
+        mb: unit === "Q" ? hg * 10 : convert.inhgToKpa(hg * 10),
     };
     return 8;
 }
