@@ -397,7 +397,6 @@ TEMPO 1916/1918 1200 +DZ BKN001`, (c) => {
             temperatureCelsius: 6,
             barometerMb: 1013,
             flight_category: "VFR",
-            todo: true,
         },
         {
             metar: "EGLL 010000Z AUTO 00000KT CAVOK 06/05 Q1013",
@@ -408,11 +407,8 @@ TEMPO 1916/1918 1200 +DZ BKN001`, (c) => {
             flight_category: "VFR",
         },
     ].forEach((t) => {
-        it(t.metar, { skip: t.todo ?? false }, () => {
+        it(t.metar, () => {
             const metar = metarParser(t.metar);
-            if (t.todo) {
-                console.log(t, metar);
-            }
             assert.strictEqual(metar.visibility?.miles, t.visibilitySm);
             assert.strictEqual(metar.ceiling?.feet, t.ceilingFeet);
             assert.strictEqual(metar.temperature?.celsius, t.temperatureCelsius);

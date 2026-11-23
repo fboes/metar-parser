@@ -21,7 +21,7 @@ export const metarParser = (metarString: string): Metar => {
       isTAF = metarPart === "TAF";
       return;
     }
-    if (!isTAF && mode > 1 && mode < 3 && metarPart.match(/^(\d+|\/\/)(?:\/(\d+))?(SM)?$/)) {
+    if (!isTAF && mode > 1 && mode < 3 && metarPart.match(/^(\d+|\/{2,4})(?:\/(\d+))?(SM)?$/)) {
       mode = 3; // no wind reported
     }
     if (mode > 2 && mode < 5 && metarPart.match(/^(FEW|SCT|BKN|OVC|VV)(\d+)?/)) {
@@ -36,7 +36,6 @@ export const metarParser = (metarString: string): Metar => {
 
     switch (mode) {
       case 0:
-        // ICAO Code
         metarObject.icao = metarPart;
         mode = 1;
         break;
@@ -52,60 +51,13 @@ export const metarParser = (metarString: string): Metar => {
         }
         break;
       case 2:
-        // Wind
-        match = metarPart.match(/^(\d\d\d|VRB)P?(\d+|\/{2,})(?:G(\d+))?(KT|MPS|KPH)/);
-        if (match) {
-          if (match[2]?.match(/^\/+$/)) {
-            // Unknown wind
-            mode = 3;
-            break;
-          }
-
-          let speed_kts = Number(match[2]);
-          let gust_kts = match[3] ? Number(match[3]) : null;
-          if (match[4] === "KPH") {
-            speed_kts = convert.kphToMps(speed_kts);
-            gust_kts = gust_kts ? convert.kphToMps(gust_kts) : null;
-            match[4] = "MPS";
-          }
-          const degrees = match[1] === "VRB" ? null : Number(match[1]);
-
-          metarObject.wind = {
-            degrees: degrees,
-            speed_kts: match[4] === "MPS" ? convert.mpsToKts(speed_kts) : speed_kts,
-            speed_mps: match[4] === "MPS" ? speed_kts : convert.ktsToMps(speed_kts),
-            gust_kts: gust_kts ? (match[4] === "MPS" ? convert.mpsToKts(gust_kts) : gust_kts) : null,
-            gust_mps: gust_kts ? (match[4] === "MPS" ? gust_kts : convert.ktsToMps(gust_kts)) : null,
-            degrees_from: null,
-            degrees_to: null,
-          };
-          if (match[1] === "VRB") {
-            metarObject.wind.degrees_from = 0;
-            metarObject.wind.degrees_to = 359;
-          }
-          mode = 3;
-          break;
-        }
-
-        // Forecast Date
-        match = metarPart.match(/^(\d\d)(\d\d)\/(\d\d)(\d\d)$/);
-        if (match) {
-          metarObject.forecastFrom = new Date();
-          metarObject.forecastFrom.setUTCDate(Number(match[1]));
-          metarObject.forecastFrom.setUTCHours(Number(match[2]));
-          metarObject.forecastFrom.setUTCMinutes(0);
-
-          metarObject.forecastTo = new Date();
-          metarObject.forecastTo.setUTCDate(Number(match[3]));
-          metarObject.forecastTo.setUTCHours(Number(match[4]));
-          metarObject.forecastTo.setUTCMinutes(0);
-          break;
+        mode = parseWind(metarPart, metarObject, mode);
+        if (mode === 2) {
+          parseForecastDate(metarPart, metarObject);
         }
         break;
       case 3:
-        // Visibility
         mode = parseVisibility(metarPart, metarObject, mode);
-
         if (mode === 3) {
           parseVariableWind(metarPart, metarObject);
         }
@@ -128,27 +80,14 @@ export const metarParser = (metarString: string): Metar => {
         }
         break;
       case 5:
-        // Clouds
         parseClouds(metarPart, metarObject);
         // may occur multiple times
         break;
       case 6:
-        // Temperature
         mode = parseTemperature(metarPart, metarObject, mode);
         break;
       case 7:
-        // Pressure
-        match = metarPart.match(/^(Q|A)(\d+)/);
-        if (match) {
-          let hg = Number(match[2]);
-          hg /= match[1] === "Q" ? 10 : 100;
-          metarObject.barometer = {
-            hg: match[1] === "Q" ? convert.kpaToInhg(hg) : hg,
-            kpa: match[1] === "Q" ? hg : convert.inhgToKpa(hg),
-            mb: match[1] === "Q" ? hg * 10 : convert.inhgToKpa(hg * 10),
-          };
-          mode = 8;
-        }
+        mode = parsePressure(metarPart, metarObject, mode);
         break;
     }
   });
@@ -161,6 +100,59 @@ export const metarParser = (metarString: string): Metar => {
 };
 
 // -----------------------------------------------------------------------------
+
+function parseWind(metarPart: string, metarObject: Metar, mode: number): number {
+  // Case: Unkonw wind
+  if (metarPart.match(/^\/+(KT|MPS|KPH)$/)) {
+    return 3;
+  }
+
+  const match = metarPart.match(/^(\d\d\d|VRB)P?(\d+)(?:G(\d+))?(KT|MPS|KPH)/);
+  if (!match) {
+    return mode;
+  }
+
+  let speed_kts = Number(match[2]);
+  let gust_kts = match[3] ? Number(match[3]) : null;
+  if (match[4] === "KPH") {
+    speed_kts = convert.kphToMps(speed_kts);
+    gust_kts = gust_kts ? convert.kphToMps(gust_kts) : null;
+    match[4] = "MPS";
+  }
+  const degrees = match[1] === "VRB" ? null : Number(match[1]);
+
+  metarObject.wind = {
+    degrees: degrees,
+    speed_kts: match[4] === "MPS" ? convert.mpsToKts(speed_kts) : speed_kts,
+    speed_mps: match[4] === "MPS" ? speed_kts : convert.ktsToMps(speed_kts),
+    gust_kts: gust_kts ? (match[4] === "MPS" ? convert.mpsToKts(gust_kts) : gust_kts) : null,
+    gust_mps: gust_kts ? (match[4] === "MPS" ? gust_kts : convert.ktsToMps(gust_kts)) : null,
+    degrees_from: null,
+    degrees_to: null,
+  };
+  if (match[1] === "VRB") {
+    metarObject.wind.degrees_from = 0;
+    metarObject.wind.degrees_to = 359;
+  }
+
+  return 3;
+}
+
+function parseForecastDate(metarPart: string, metarObject: Metar): void {
+  const match = metarPart.match(/^(\d\d)(\d\d)\/(\d\d)(\d\d)$/);
+  if (!match) {
+    return;
+  }
+  metarObject.forecastFrom = new Date();
+  metarObject.forecastFrom.setUTCDate(Number(match[1]));
+  metarObject.forecastFrom.setUTCHours(Number(match[2]));
+  metarObject.forecastFrom.setUTCMinutes(0);
+
+  metarObject.forecastTo = new Date();
+  metarObject.forecastTo.setUTCDate(Number(match[3]));
+  metarObject.forecastTo.setUTCHours(Number(match[4]));
+  metarObject.forecastTo.setUTCMinutes(0);
+}
 
 function parseVisibility(metarPart: string, metarObject: Metar, mode: number): number {
   // Case: No clouds & conditions reported
@@ -221,6 +213,21 @@ function parseTemperature(metarPart: string, metarObject: Metar, mode: number): 
     return 7;
   }
   return mode;
+}
+
+function parsePressure(metarPart: string, metarObject: Metar, mode: number): number {
+  const match = metarPart.match(/^(Q|A)(\d+)/);
+  if (!match) {
+    return mode;
+  }
+  let hg = Number(match[2]);
+  hg /= match[1] === "Q" ? 10 : 100;
+  metarObject.barometer = {
+    hg: match[1] === "Q" ? convert.kpaToInhg(hg) : hg,
+    kpa: match[1] === "Q" ? hg : convert.inhgToKpa(hg),
+    mb: match[1] === "Q" ? hg * 10 : convert.inhgToKpa(hg * 10),
+  };
+  return 8;
 }
 
 // -----------------------------------------------------------------------------
