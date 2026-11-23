@@ -17,10 +17,14 @@ This METAR parser returns the following parts of a METAR string:
 - Temperature (in °C & °F) & humidity
 - Barometer pressure (in InHg, kpa & mb)
 
+It also provides TypeScript type definitions.
+
+Please be aware that some values may come up bein `null`. This may be caused by missing information in the original METAR information.
+
 ## Code example
 
 ```javascript
-import { metarParser } from "./metar-parser.js";
+import { metarParser } from "aewx-metar-parser";
 
 const metarObject = metarParser(
   "KSFO 070121Z 19023KT 1 1/2SM R28R/6000VP6000FT -RA BKN004 BKN013 OVC035 15/12 A2970 RMK AO2 T01500122 PNO $",

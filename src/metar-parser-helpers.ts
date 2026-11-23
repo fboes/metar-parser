@@ -5,7 +5,7 @@ import type {
   MetarCloud,
   MetarTemperature,
   MetarCeiling,
-  MetarFlightCategory,
+  MetarFlightCategory as MetarUsFlightCategory,
   MetarIcaoFlightCategory,
 } from "./metar-parser.type.js";
 
@@ -18,7 +18,7 @@ export function round(value: number, toNext: number = 500): number {
   return Math.round(value / toNext) * toNext;
 }
 
-export function getVisibility(visibility_miles: number, visibility_meters: number): MetarVisibility {
+export function metarVisibility(visibility_miles: number, visibility_meters: number): MetarVisibility {
   return {
     miles: visibility_miles,
     miles_text: String(round(visibility_miles, 0.5)),
@@ -27,7 +27,7 @@ export function getVisibility(visibility_miles: number, visibility_meters: numbe
   };
 }
 
-export function getCloud(code: MetarCloudCode, hundredFeet: string): MetarCloud {
+export function metarCloud(code: MetarCloudCode, hundredFeet: string): MetarCloud {
   const feet = Number(hundredFeet) * 100;
   return {
     code: code,
@@ -36,7 +36,10 @@ export function getCloud(code: MetarCloudCode, hundredFeet: string): MetarCloud 
   };
 }
 
-export function getTemperature(temperatureString: string): MetarTemperature {
+export function metarTemperature(temperatureString: string): MetarTemperature | null {
+  if (temperatureString === "//") {
+    return null;
+  }
   const temperature = Number(temperatureString.replace("M", "-"));
   return {
     celsius: temperature,
@@ -47,8 +50,8 @@ export function getTemperature(temperatureString: string): MetarTemperature {
 /**
  * @see http://andrew.rsmas.miami.edu/bmcnoldy/Humidity.html
  */
-export function getHumidity(temp: MetarTemperature, dew: MetarTemperature): number | null {
-  if (dew.celsius === null || temp.celsius === null) {
+export function relativeHumidityPercent(temp: MetarTemperature | null, dew: MetarTemperature | null): number | null {
+  if (dew === null || temp === null) {
     return null;
   }
   return (
@@ -58,27 +61,62 @@ export function getHumidity(temp: MetarTemperature, dew: MetarTemperature): numb
   );
 }
 
-export function getFlightCategory(visibility: MetarVisibility, ceiling: MetarCeiling): MetarFlightCategory {
-  if (visibility.miles > 5 && (ceiling.feet === null || ceiling.feet > 3000)) {
+export function flightCategoryUs(
+  visibility: MetarVisibility | null,
+  ceiling: MetarCeiling | null,
+): MetarUsFlightCategory | null {
+  if (visibility === null) {
+    return null;
+  }
+
+  if (visibility.miles > 5 && (ceiling === null || ceiling.feet > 3000)) {
     return "VFR";
-  } else if (visibility.miles >= 3 && (ceiling.feet === null || ceiling.feet >= 1000)) {
+  } else if (visibility.miles >= 3 && (ceiling === null || ceiling.feet >= 1000)) {
     return "MVFR";
-  } else if (visibility.miles >= 1 && (ceiling.feet === null || ceiling.feet >= 500)) {
+  } else if (visibility.miles >= 1 && (ceiling === null || ceiling.feet >= 500)) {
     return "IFR";
   }
   return "LIFR";
 }
 
-export function getIcaoFlightCategory(visibility: MetarVisibility, ceiling: MetarCeiling): MetarIcaoFlightCategory {
-  return visibility.meters >= 5000 && (ceiling.feet === null || ceiling.feet >= 1500) ? "VFR" : "IFR";
+export function flightCategoryIcao(
+  visibility: MetarVisibility | null,
+  ceiling: MetarCeiling | null,
+): MetarIcaoFlightCategory | null {
+  if (visibility === null) {
+    return null;
+  }
+
+  return visibility.meters >= 5000 && (ceiling === null || ceiling.feet >= 1500) ? "VFR" : "IFR";
 }
 
-export function getCeiling(clouds: MetarCloud[]): MetarCloud | undefined {
+/**
+ * @returns the lowest cloud layer reporting `BKN` or `OVC`, or undefined if
+ *   not such cloud layer was found.
+ */
+function findCeiling(clouds: MetarCloud[]): MetarCloud | undefined {
   return clouds.find((c) => {
     return c.code === "BKN" || c.code === "OVC";
   });
 }
 
+export function metarCeiling(clouds: MetarCloud[]): MetarCeiling | null {
+  const ceilingCloud = findCeiling(clouds);
+
+  if (!ceilingCloud) {
+    return null;
+  }
+
+  return {
+    feet: ceilingCloud.feet,
+    meters: ceilingCloud.meters,
+  };
+}
+
+/**
+ * @return METAR string split along its white spaces. Will convert fractional
+ *   visibility values into one concatenated value.
+ */
 export function metarSplit(metarString: string): string[] {
   return metarString
     .trim()

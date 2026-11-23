@@ -1,8 +1,14 @@
 # Change log
 
-## [Unreleased]
+## [Unreleaed]
+
+## [4.0.0]
 
 - Updated ESLint
+- Visbility may not be provided, returning `null`
+- Temperature / dewpoints may not be provided, returning `null`
+- Wind may not be provided, returning `null`
+- Required values for flight category may not be provided, returning `null`
 
 ## [3.0.2] - 2026-08-25
 

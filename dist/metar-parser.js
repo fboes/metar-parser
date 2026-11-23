@@ -18,33 +18,19 @@ export const metarParser = (metarString) => {
         forecastTo: null,
         wind: {
             degrees: null,
-            speed_kts: 0,
-            speed_mps: 0,
+            speed_kts: null,
+            speed_mps: null,
             gust_kts: null,
             gust_mps: null,
             degrees_from: null,
             degrees_to: null,
         },
-        visibility: {
-            miles: 10,
-            miles_text: "",
-            meters: 9999,
-            meters_text: "",
-        },
+        visibility: null,
         conditions: [],
         clouds: [],
-        ceiling: {
-            feet: null,
-            meters: null,
-        },
-        temperature: {
-            celsius: null,
-            fahrenheit: null,
-        },
-        dewpoint: {
-            celsius: null,
-            fahrenheit: null,
-        },
+        ceiling: null,
+        temperature: null,
+        dewpoint: null,
         humidity: {
             percent: null,
         },
@@ -70,7 +56,7 @@ export const metarParser = (metarString) => {
         if (mode > 2 && mode < 5 && metarPart.match(/^(FEW|SCT|BKN|OVC)(\d+)?/)) {
             mode = 5; // no visibility / conditions reported
         }
-        if (mode > 3 && mode < 6 && metarPart.match(/(^M?\d+\/M?\d+$)|(^\/\/\/\/\/)/)) {
+        if (mode > 3 && mode < 6 && metarPart.match(/^(M?\d+|\/\/)\/(M?\d+|\/\/)?$/)) {
             mode = 6; // end of clouds
         }
         if (metarPart.match(/^(TEMPO|FM\d+|\\n)$/)) {
@@ -137,14 +123,14 @@ export const metarParser = (metarString) => {
                 break;
             case 3:
                 // Visibility
-                match = metarPart.match(/^P?(\d+)(?:\/(\d+))?(SM)?$/);
+                match = metarPart.match(/^[MP]?(\d+)(?:\/(\d+))?(SM)?$/);
                 if (match) {
                     const visibility = match[2] ? Number(match[1]) / Number(match[2]) : Number(match[1]);
-                    metarObject.visibility = MetarParserHelpers.getVisibility(match[3] && match[3] === "SM" ? visibility : convert.metersToMiles(visibility), match[3] && match[3] === "SM" ? convert.milesToMeters(visibility) : visibility);
+                    metarObject.visibility = MetarParserHelpers.metarVisibility(match[3] && match[3] === "SM" ? visibility : convert.metersToMiles(visibility), match[3] && match[3] === "SM" ? convert.milesToMeters(visibility) : visibility);
                     mode = 4;
                 }
                 else if (metarPart === "CAVOK" || metarPart === "CLR") {
-                    metarObject.visibility = MetarParserHelpers.getVisibility(10, convert.milesToMeters(10));
+                    metarObject.visibility = MetarParserHelpers.metarVisibility(10, convert.milesToMeters(10));
                     mode = 5; // no clouds & conditions reported
                 }
                 else if (metarObject.wind) {
@@ -198,28 +184,23 @@ export const metarParser = (metarString) => {
                 break;
         }
     });
-    const ceilingCloud = MetarParserHelpers.getCeiling(metarObject.clouds);
-    metarObject.ceiling.feet = ceilingCloud?.feet ?? null;
-    metarObject.ceiling.meters = ceilingCloud?.meters ?? null;
-    metarObject.flight_category = MetarParserHelpers.getFlightCategory(metarObject.visibility, metarObject.ceiling);
-    metarObject.icao_flight_category = MetarParserHelpers.getIcaoFlightCategory(metarObject.visibility, metarObject.ceiling);
+    metarObject.ceiling = MetarParserHelpers.metarCeiling(metarObject.clouds);
+    metarObject.flight_category = MetarParserHelpers.flightCategoryUs(metarObject.visibility, metarObject.ceiling);
+    metarObject.icao_flight_category = MetarParserHelpers.flightCategoryIcao(metarObject.visibility, metarObject.ceiling);
     return metarObject;
 };
 function parseClouds(metarPart, metarObject) {
     const [, cloudType, cloudAltitude] = metarPart.match(/^(FEW|SCT|BKN|OVC)(\d+)/) || [];
     if (cloudType && cloudAltitude) {
-        metarObject.clouds.push(MetarParserHelpers.getCloud(cloudType, cloudAltitude));
+        metarObject.clouds.push(MetarParserHelpers.metarCloud(cloudType, cloudAltitude));
     }
 }
 function parseTemperature(metarPart, metarObject, mode) {
-    const [, temp, dewpoint] = metarPart.match(/^(M?\d+)\/(M?\d+)$/) || [];
-    if (temp === undefined && metarPart.match(/^\/\/\/\/\/$/)) {
-        return 7;
-    }
-    if (temp && dewpoint) {
-        metarObject.temperature = MetarParserHelpers.getTemperature(temp);
-        metarObject.dewpoint = MetarParserHelpers.getTemperature(dewpoint);
-        metarObject.humidity.percent = MetarParserHelpers.getHumidity(metarObject.temperature, metarObject.dewpoint);
+    const [, temp, dewpoint] = metarPart.match(/^(M?\d+|\/\/)\/(M?\d+|\/\/)?$/) || [];
+    if (temp) {
+        metarObject.temperature = MetarParserHelpers.metarTemperature(temp ?? "//");
+        metarObject.dewpoint = MetarParserHelpers.metarTemperature(dewpoint ?? "//");
+        metarObject.humidity.percent = MetarParserHelpers.relativeHumidityPercent(metarObject.temperature, metarObject.dewpoint);
         return 7;
     }
     return mode;

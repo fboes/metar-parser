@@ -8,14 +8,15 @@
   },
   "main": "dist/metar-parser.js",
   "scripts": {
-    "test": "cd dist && node --test",
-    "test:coverage": "cd dist && node --test --experimental-test-coverage",
-    "test:watch": "cd dist && node --test --watch",
+    "test": "node --test dist/*.test.js",
+    "test:coverage": "node --test --experimental-test-coverage dist/*.test.js",
+    "test:watch": "node --test --watch dist/*.test.js",
     "prettier": "npx prettier --cache --write .",
     "eslint": "npx eslint **/*.ts --fix",
     "tsc": "npx tsc --build",
     "tsc-watch": "npx tsc --watch",
-    "build": "npm run eslint && npm run prettier && npm run tsc && npm test"
+    "precommit" : "npm run eslint && npm run prettier && npm test",
+    "prepack": "npm run tsc && npm precommit"
   },
   "repository": {
     "type": "git",

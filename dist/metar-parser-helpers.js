@@ -7,7 +7,7 @@ import * as convert from "./convert.js";
 export function round(value, toNext = 500) {
     return Math.round(value / toNext) * toNext;
 }
-export function getVisibility(visibility_miles, visibility_meters) {
+export function metarVisibility(visibility_miles, visibility_meters) {
     return {
         miles: visibility_miles,
         miles_text: String(round(visibility_miles, 0.5)),
@@ -15,7 +15,7 @@ export function getVisibility(visibility_miles, visibility_meters) {
         meters_text: String(round(visibility_meters, 500)),
     };
 }
-export function getCloud(code, hundredFeet) {
+export function metarCloud(code, hundredFeet) {
     const feet = Number(hundredFeet) * 100;
     return {
         code: code,
@@ -23,7 +23,10 @@ export function getCloud(code, hundredFeet) {
         meters: convert.feetToMeters(feet),
     };
 }
-export function getTemperature(temperatureString) {
+export function metarTemperature(temperatureString) {
+    if (temperatureString === "//") {
+        return null;
+    }
     const temperature = Number(temperatureString.replace("M", "-"));
     return {
         celsius: temperature,
@@ -33,34 +36,58 @@ export function getTemperature(temperatureString) {
 /**
  * @see http://andrew.rsmas.miami.edu/bmcnoldy/Humidity.html
  */
-export function getHumidity(temp, dew) {
-    if (dew.celsius === null || temp.celsius === null) {
+export function relativeHumidityPercent(temp, dew) {
+    if (dew === null || temp === null) {
         return null;
     }
     return ((Math.exp((17.625 * dew.celsius) / (243.04 + dew.celsius)) /
         Math.exp((17.625 * temp.celsius) / (243.04 + temp.celsius))) *
         100);
 }
-export function getFlightCategory(visibility, ceiling) {
-    if (visibility.miles > 5 && (ceiling.feet === null || ceiling.feet > 3000)) {
+export function flightCategoryUs(visibility, ceiling) {
+    if (visibility === null) {
+        return null;
+    }
+    if (visibility.miles > 5 && (ceiling === null || ceiling.feet > 3000)) {
         return "VFR";
     }
-    else if (visibility.miles >= 3 && (ceiling.feet === null || ceiling.feet >= 1000)) {
+    else if (visibility.miles >= 3 && (ceiling === null || ceiling.feet >= 1000)) {
         return "MVFR";
     }
-    else if (visibility.miles >= 1 && (ceiling.feet === null || ceiling.feet >= 500)) {
+    else if (visibility.miles >= 1 && (ceiling === null || ceiling.feet >= 500)) {
         return "IFR";
     }
     return "LIFR";
 }
-export function getIcaoFlightCategory(visibility, ceiling) {
-    return visibility.meters >= 5000 && (ceiling.feet === null || ceiling.feet >= 1500) ? "VFR" : "IFR";
+export function flightCategoryIcao(visibility, ceiling) {
+    if (visibility === null) {
+        return null;
+    }
+    return visibility.meters >= 5000 && (ceiling === null || ceiling.feet >= 1500) ? "VFR" : "IFR";
 }
-export function getCeiling(clouds) {
+/**
+ * @returns the lowest cloud layer reporting `BKN` or `OVC`, or undefined if
+ *   not such cloud layer was found.
+ */
+function findCeiling(clouds) {
     return clouds.find((c) => {
         return c.code === "BKN" || c.code === "OVC";
     });
 }
+export function metarCeiling(clouds) {
+    const ceilingCloud = findCeiling(clouds);
+    if (!ceilingCloud) {
+        return null;
+    }
+    return {
+        feet: ceilingCloud.feet,
+        meters: ceilingCloud.meters,
+    };
+}
+/**
+ * @return METAR string split along its white spaces. Will convert fractional
+ *   visibility values into one concatenated value.
+ */
 export function metarSplit(metarString) {
     return metarString
         .trim()

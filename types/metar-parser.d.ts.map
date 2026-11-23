@@ -1,1 +1,1 @@
-{"version":3,"file":"metar-parser.d.ts","sourceRoot":"","sources":["../src/metar-parser.ts"],"names":[],"mappings":"AAEA,OAAO,KAAK,EAA8B,KAAK,EAAE,MAAM,wBAAwB,CAAC;AAEhF;;;;;;;GAOG;AACH,eAAO,MAAM,WAAW,GAAI,aAAa,MAAM,KAAG,KAgNjD,CAAC"}
+{"version":3,"file":"metar-parser.d.ts","sourceRoot":"","sources":["../src/metar-parser.ts"],"names":[],"mappings":"AAEA,OAAO,KAAK,EAAkB,KAAK,EAAE,MAAM,wBAAwB,CAAC;AAEpE;;;;;;;GAOG;AACH,eAAO,MAAM,WAAW,GAAI,aAAa,MAAM,KAAG,KA6LjD,CAAC"}

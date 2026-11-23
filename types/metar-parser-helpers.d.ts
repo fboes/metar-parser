@@ -1,19 +1,23 @@
-import type { MetarVisibility, MetarCloudCode, MetarCloud, MetarTemperature, MetarCeiling, MetarFlightCategory, MetarIcaoFlightCategory } from "./metar-parser.type.js";
+import type { MetarVisibility, MetarCloudCode, MetarCloud, MetarTemperature, MetarCeiling, MetarFlightCategory as MetarUsFlightCategory, MetarIcaoFlightCategory } from "./metar-parser.type.js";
 /**
  * @param {Number} value dito
  * @param {Number} toNext round to next full xxxx
  * @returns {Number} rounded value
  */
 export declare function round(value: number, toNext?: number): number;
-export declare function getVisibility(visibility_miles: number, visibility_meters: number): MetarVisibility;
-export declare function getCloud(code: MetarCloudCode, hundredFeet: string): MetarCloud;
-export declare function getTemperature(temperatureString: string): MetarTemperature;
+export declare function metarVisibility(visibility_miles: number, visibility_meters: number): MetarVisibility;
+export declare function metarCloud(code: MetarCloudCode, hundredFeet: string): MetarCloud;
+export declare function metarTemperature(temperatureString: string): MetarTemperature | null;
 /**
  * @see http://andrew.rsmas.miami.edu/bmcnoldy/Humidity.html
  */
-export declare function getHumidity(temp: MetarTemperature, dew: MetarTemperature): number | null;
-export declare function getFlightCategory(visibility: MetarVisibility, ceiling: MetarCeiling): MetarFlightCategory;
-export declare function getIcaoFlightCategory(visibility: MetarVisibility, ceiling: MetarCeiling): MetarIcaoFlightCategory;
-export declare function getCeiling(clouds: MetarCloud[]): MetarCloud | undefined;
+export declare function relativeHumidityPercent(temp: MetarTemperature | null, dew: MetarTemperature | null): number | null;
+export declare function flightCategoryUs(visibility: MetarVisibility | null, ceiling: MetarCeiling | null): MetarUsFlightCategory | null;
+export declare function flightCategoryIcao(visibility: MetarVisibility | null, ceiling: MetarCeiling | null): MetarIcaoFlightCategory | null;
+export declare function metarCeiling(clouds: MetarCloud[]): MetarCeiling | null;
+/**
+ * @return METAR string split along its white spaces. Will convert fractional
+ *   visibility values into one concatenated value.
+ */
 export declare function metarSplit(metarString: string): string[];
 //# sourceMappingURL=metar-parser-helpers.d.ts.map
