@@ -100,6 +100,11 @@ function findCeiling(clouds: MetarCloud[]): MetarCloud | undefined {
   });
 }
 
+/**
+ * @see findCeiling
+ * @returns the ceiling by looking for the lowest cloud layer reporting `BKN`
+ *  or `OVC`.
+ */
 export function metarCeiling(clouds: MetarCloud[]): MetarCeiling | null {
   const ceilingCloud = findCeiling(clouds);
 

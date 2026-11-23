@@ -74,6 +74,11 @@ function findCeiling(clouds) {
         return c.code === "BKN" || c.code === "OVC";
     });
 }
+/**
+ * @see findCeiling
+ * @returns the ceiling by looking for the lowest cloud layer reporting `BKN`
+ *  or `OVC`.
+ */
 export function metarCeiling(clouds) {
     const ceilingCloud = findCeiling(clouds);
     if (!ceilingCloud) {

@@ -14,6 +14,11 @@ export declare function metarTemperature(temperatureString: string): MetarTemper
 export declare function relativeHumidityPercent(temp: MetarTemperature | null, dew: MetarTemperature | null): number | null;
 export declare function flightCategoryUs(visibility: MetarVisibility | null, ceiling: MetarCeiling | null): MetarUsFlightCategory | null;
 export declare function flightCategoryIcao(visibility: MetarVisibility | null, ceiling: MetarCeiling | null): MetarIcaoFlightCategory | null;
+/**
+ * @see findCeiling
+ * @returns the ceiling by looking for the lowest cloud layer reporting `BKN`
+ *  or `OVC`.
+ */
 export declare function metarCeiling(clouds: MetarCloud[]): MetarCeiling | null;
 /**
  * @return METAR string split along its white spaces. Will convert fractional
