@@ -378,7 +378,7 @@ TEMPO 1916/1918 1200 +DZ BKN001`, (c) => {
     ceilingFeet: number | undefined;
     temperatureCelsius: number | null;
     barometerMb: number | null;
-    flight_category: string;
+    flight_category: string | null;
     todo?: boolean;
   };
 
@@ -435,10 +435,9 @@ TEMPO 1916/1918 1200 +DZ BKN001`, (c) => {
       metar: "LIMY 151255Z AUTO VRB02KT //// 21/14 Q1012",
       visibilitySm: undefined,
       ceilingFeet: undefined,
-      temperatureCelsius: null,
-      barometerMb: null,
-      flight_category: "LIFR",
-      todo: true,
+      temperatureCelsius: 21,
+      barometerMb: 1012,
+      flight_category: null,
     },
     {
       metar: "KJFK 010000Z AUTO 00000KT //// OVC080 04/00 A2992",
@@ -446,16 +445,15 @@ TEMPO 1916/1918 1200 +DZ BKN001`, (c) => {
       ceilingFeet: 8000,
       temperatureCelsius: 4,
       barometerMb: 1013.207319962338,
-      flight_category: "VFR",
-      todo: true,
+      flight_category: null,
     },
     {
       metar: "EGLL 010000Z AUTO /////KT CAVOK 06/05 Q1013",
       visibilitySm: 10,
       ceilingFeet: undefined,
       temperatureCelsius: 6,
-      barometerMb: null,
-      flight_category: "LIFR",
+      barometerMb: 1013,
+      flight_category: "VFR",
       todo: true,
     },
     {
@@ -465,17 +463,20 @@ TEMPO 1916/1918 1200 +DZ BKN001`, (c) => {
       temperatureCelsius: 6,
       barometerMb: 1013,
       flight_category: "VFR",
-      todo: true,
     },
   ].forEach((t: issue11Case) => {
     it(t.metar, { skip: t.todo ?? false }, () => {
       const metar = metarParser(t.metar);
+
+      if (t.todo) {
+        console.log(t, metar);
+      }
+
       assert.strictEqual(metar.visibility?.miles, t.visibilitySm);
       assert.strictEqual(metar.ceiling?.feet, t.ceilingFeet);
       assert.strictEqual(metar.temperature?.celsius, t.temperatureCelsius);
       assert.strictEqual(metar.barometer.mb, t.barometerMb);
       assert.strictEqual(metar.flight_category, t.flight_category);
-      //console.log(t, metar);
     });
   });
 });

@@ -9,39 +9,7 @@ import * as MetarParserHelpers from "./metar-parser-helpers.js";
  *                   reponse of the data property of https://www.checkwxapi.com/metar
  */
 export const metarParser = (metarString) => {
-    const metarObject = {
-        raw_text: metarString,
-        raw_parts: MetarParserHelpers.metarSplit(metarString),
-        icao: "",
-        observed: new Date(),
-        forecastFrom: null,
-        forecastTo: null,
-        wind: {
-            degrees: null,
-            speed_kts: null,
-            speed_mps: null,
-            gust_kts: null,
-            gust_mps: null,
-            degrees_from: null,
-            degrees_to: null,
-        },
-        visibility: null,
-        conditions: [],
-        clouds: [],
-        ceiling: null,
-        temperature: null,
-        dewpoint: null,
-        humidity: {
-            percent: null,
-        },
-        barometer: {
-            hg: null,
-            kpa: null,
-            mb: null,
-        },
-        flight_category: null,
-        icao_flight_category: null,
-    };
+    const metarObject = initializeMetarObject(metarString);
     let mode = 0;
     let isTAF = false;
     metarObject.raw_parts.forEach((metarPart) => {
@@ -50,10 +18,10 @@ export const metarParser = (metarString) => {
             isTAF = metarPart === "TAF";
             return;
         }
-        if (!isTAF && mode > 1 && mode < 3 && metarPart.match(/^(\d+)(?:\/(\d+))?(SM)?$/)) {
+        if (!isTAF && mode > 1 && mode < 3 && metarPart.match(/^(\d+|\/\/)(?:\/(\d+))?(SM)?$/)) {
             mode = 3; // no wind reported
         }
-        if (mode > 2 && mode < 5 && metarPart.match(/^(FEW|SCT|BKN|OVC)(\d+)?/)) {
+        if (mode > 2 && mode < 5 && metarPart.match(/^(FEW|SCT|BKN|OVC|VV)(\d+)?/)) {
             mode = 5; // no visibility / conditions reported
         }
         if (mode > 3 && mode < 6 && metarPart.match(/^(M?\d+|\/\/)\/(M?\d+|\/\/)?$/)) {
@@ -81,8 +49,13 @@ export const metarParser = (metarString) => {
                 break;
             case 2:
                 // Wind
-                match = metarPart.match(/^(\d\d\d|VRB)P?(\d+)(?:G(\d+))?(KT|MPS|KPH)/);
+                match = metarPart.match(/^(\d\d\d|VRB)P?(\d+|\/{2,})(?:G(\d+))?(KT|MPS|KPH)/);
                 if (match) {
+                    if (match[2]?.match(/^\/+$/)) {
+                        // Unknown wind
+                        mode = 3;
+                        break;
+                    }
                     let speed_kts = Number(match[2]);
                     let gust_kts = match[3] ? Number(match[3]) : null;
                     if (match[4] === "KPH") {
@@ -123,23 +96,9 @@ export const metarParser = (metarString) => {
                 break;
             case 3:
                 // Visibility
-                match = metarPart.match(/^[MP]?(\d+)(?:\/(\d+))?(SM)?$/);
-                if (match) {
-                    const visibility = match[2] ? Number(match[1]) / Number(match[2]) : Number(match[1]);
-                    metarObject.visibility = MetarParserHelpers.metarVisibility(match[3] && match[3] === "SM" ? visibility : convert.metersToMiles(visibility), match[3] && match[3] === "SM" ? convert.milesToMeters(visibility) : visibility);
-                    mode = 4;
-                }
-                else if (metarPart === "CAVOK" || metarPart === "CLR") {
-                    metarObject.visibility = MetarParserHelpers.metarVisibility(10, convert.milesToMeters(10));
-                    mode = 5; // no clouds & conditions reported
-                }
-                else if (metarObject.wind) {
-                    // Variable wind direction
-                    match = metarPart.match(/^(\d+)V(\d+)$/);
-                    if (match) {
-                        metarObject.wind.degrees_from = Number(match[1]);
-                        metarObject.wind.degrees_to = Number(match[2]);
-                    }
+                mode = parseVisibility(metarPart, metarObject, mode);
+                if (mode === 3) {
+                    parseVariableWind(metarPart, metarObject);
                 }
                 break;
             case 4:
@@ -189,8 +148,38 @@ export const metarParser = (metarString) => {
     metarObject.icao_flight_category = MetarParserHelpers.flightCategoryIcao(metarObject.visibility, metarObject.ceiling);
     return metarObject;
 };
+// -----------------------------------------------------------------------------
+function parseVisibility(metarPart, metarObject, mode) {
+    // Case: No clouds & conditions reported
+    if (metarPart === "CAVOK" || metarPart === "CLR") {
+        metarObject.visibility = MetarParserHelpers.metarVisibility(10, convert.milesToMeters(10));
+        return 5;
+    }
+    const [, digits, fraction, unit] = metarPart.match(/^[MP]?(\d+|\/{2,4})(?:\/(\d+))?(SM)?$/) || [];
+    if (digits === undefined) {
+        return mode;
+    }
+    // Case: Explicitly unknown visibility
+    if (digits.match(/^\/+/)) {
+        return 4;
+    }
+    // Case: Known visibility, possibly as fraction
+    const visibility = fraction ? Number(digits) / Number(fraction) : Number(digits);
+    metarObject.visibility = MetarParserHelpers.metarVisibility(unit === "SM" ? visibility : convert.metersToMiles(visibility), unit === "SM" ? convert.milesToMeters(visibility) : visibility);
+    return 4;
+}
+function parseVariableWind(metarPart, metarObject) {
+    if (!metarObject.wind) {
+        return;
+    }
+    const match = metarPart.match(/^(\d+)V(\d+)$/);
+    if (match) {
+        metarObject.wind.degrees_from = Number(match[1]);
+        metarObject.wind.degrees_to = Number(match[2]);
+    }
+}
 function parseClouds(metarPart, metarObject) {
-    const [, cloudType, cloudAltitude] = metarPart.match(/^(FEW|SCT|BKN|OVC)(\d+)/) || [];
+    const [, cloudType, cloudAltitude] = metarPart.match(/^(FEW|SCT|BKN|OVC|VV)(\d+)/) || [];
     if (cloudType && cloudAltitude) {
         metarObject.clouds.push(MetarParserHelpers.metarCloud(cloudType, cloudAltitude));
     }
@@ -204,4 +193,40 @@ function parseTemperature(metarPart, metarObject, mode) {
         return 7;
     }
     return mode;
+}
+// -----------------------------------------------------------------------------
+function initializeMetarObject(metarString) {
+    return {
+        raw_text: metarString,
+        raw_parts: MetarParserHelpers.metarSplit(metarString),
+        icao: "",
+        observed: new Date(),
+        forecastFrom: null,
+        forecastTo: null,
+        wind: {
+            degrees: null,
+            speed_kts: null,
+            speed_mps: null,
+            gust_kts: null,
+            gust_mps: null,
+            degrees_from: null,
+            degrees_to: null,
+        },
+        visibility: null,
+        conditions: [],
+        clouds: [],
+        ceiling: null,
+        temperature: null,
+        dewpoint: null,
+        humidity: {
+            percent: null,
+        },
+        barometer: {
+            hg: null,
+            kpa: null,
+            mb: null,
+        },
+        flight_category: null,
+        icao_flight_category: null,
+    };
 }
