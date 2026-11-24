@@ -2,10 +2,13 @@
 
 ## [Unreleaed]
 
+## [4.1.0] - 2026-11-24
+
 - Humidity may not be provided, returning `null`
 - Pressure may not be provided, returning `null`
+- Fixed date parser
 
-## [4.0.0]
+## [4.0.0] - 2026-11-23
 
 - Updated ESLint
 - Visbility may not be provided, returning `null`

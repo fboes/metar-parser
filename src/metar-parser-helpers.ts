@@ -135,3 +135,21 @@ export function metarSplit(metarString: string): string[] {
     .replace(/\n/, " \\n ")
     .split(/\s+/);
 }
+
+export function date(date: number, hours: number, minutes: number): Date {
+  const now = new Date();
+
+  const d = new Date(0);
+  d.setUTCDate(date);
+  d.setUTCMonth(now.getUTCMonth());
+  d.setUTCFullYear(now.getUTCFullYear());
+
+  d.setUTCHours(hours);
+  d.setUTCMinutes(minutes);
+
+  if (d.getTime() > now.getTime()) {
+    d.setUTCMonth(d.getUTCMonth() - 1);
+  }
+
+  return d;
+}

@@ -5,6 +5,9 @@ import path from "node:path";
 import { metarParser } from "./metar-parser.js";
 import * as convert from "./convert.js";
 function writeArtifact(filename, result) {
+    if (!process.env.WRITE_ARTIFACTS) {
+        return;
+    }
     fs.writeFileSync(path.join(import.meta.dirname, "..", "docs", filename), JSON.stringify(result, null, 2), "utf-8");
 }
 describe("METAR Parsing Tests", () => {

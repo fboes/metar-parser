@@ -25,4 +25,5 @@ export declare function metarCeiling(clouds: MetarCloud[]): MetarCeiling | null;
  *   visibility values into one concatenated value.
  */
 export declare function metarSplit(metarString: string): string[];
+export declare function date(date: number, hours: number, minutes: number): Date;
 //# sourceMappingURL=metar-parser-helpers.d.ts.map

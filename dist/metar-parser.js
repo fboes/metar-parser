@@ -78,10 +78,7 @@ function parseObservedDate(metarPart, metarObject, mode) {
     if (!match) {
         return mode;
     }
-    metarObject.observed = new Date();
-    metarObject.observed.setUTCDate(Number(match[1]));
-    metarObject.observed.setUTCHours(Number(match[2]));
-    metarObject.observed.setUTCMinutes(Number(match[3]));
+    metarObject.observed = MetarParserHelpers.date(Number(match[1]), Number(match[2]), Number(match[3]));
     return 2;
 }
 function parseWind(metarPart, metarObject, mode) {
@@ -121,14 +118,8 @@ function parseForecastDate(metarPart, metarObject) {
     if (!fromDate) {
         return;
     }
-    metarObject.forecastFrom = new Date();
-    metarObject.forecastFrom.setUTCDate(Number(fromDate));
-    metarObject.forecastFrom.setUTCHours(Number(fromHours));
-    metarObject.forecastFrom.setUTCMinutes(0);
-    metarObject.forecastTo = new Date();
-    metarObject.forecastTo.setUTCDate(Number(toDate));
-    metarObject.forecastTo.setUTCHours(Number(toHours));
-    metarObject.forecastTo.setUTCMinutes(0);
+    metarObject.forecastFrom = MetarParserHelpers.date(Number(fromDate), Number(fromHours), 0);
+    metarObject.forecastTo = MetarParserHelpers.date(Number(toDate), Number(toHours), 0);
 }
 function parseVisibility(metarPart, metarObject, mode) {
     // Case: No clouds & conditions reported
@@ -209,7 +200,7 @@ function initializeMetarObject(metarString) {
         raw_text: metarString,
         raw_parts: MetarParserHelpers.metarSplit(metarString),
         icao: "",
-        observed: new Date(),
+        observed: new Date(0),
         forecastFrom: null,
         forecastTo: null,
         wind: {
