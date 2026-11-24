@@ -227,10 +227,7 @@ function parseTemperature(metarPart: string, metarObject: Metar, mode: ParserMod
   if (temp) {
     metarObject.temperature = MetarParserHelpers.metarTemperature(temp ?? "//");
     metarObject.dewpoint = MetarParserHelpers.metarTemperature(dewpoint ?? "//");
-    metarObject.humidity = MetarParserHelpers.relativeHumidity(
-      metarObject.temperature,
-      metarObject.dewpoint,
-    );
+    metarObject.humidity = MetarParserHelpers.relativeHumidity(metarObject.temperature, metarObject.dewpoint);
     return 7;
   }
   return mode;
@@ -241,7 +238,7 @@ function parsePressure(metarPart: string, metarObject: Metar, mode: ParserMode):
   if (!unit || !value) {
     return mode;
   }
-  
+
   const hg = Number(value) / (unit === "Q" ? 10 : 100);
   metarObject.barometer = {
     hg: unit === "Q" ? convert.kpaToInhg(hg) : hg,

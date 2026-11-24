@@ -1,7 +1,12 @@
 import { strict as assert } from "node:assert/strict";
 import { describe, it } from "node:test";
+import fs from "node:fs";
+import path from "node:path";
 import { metarParser } from "./metar-parser.js";
 import * as convert from "./convert.js";
+function writeArtifact(filename, result) {
+    fs.writeFileSync(path.join(import.meta.dirname, "..", "docs", filename), JSON.stringify(result, null, 2), "utf-8");
+}
 describe("METAR Parsing Tests", () => {
     it("KEYW 041053Z AUTO 13005KT 10SM CLR 24/22 A3000 RMK AO2 SLP159 T02440222", (c) => {
         // https://aviationweather.gov/metar#1
@@ -14,6 +19,7 @@ describe("METAR Parsing Tests", () => {
         assert.deepStrictEqual(result.visibility?.meters_text, "16000");
         assert.deepStrictEqual(result.barometer?.kpa, 3000 / 10 / 2.9529988);
         assert.deepStrictEqual(result.flight_category, "VFR");
+        writeArtifact("KEYW.json", result);
     });
     it("KACV 041053Z AUTO 07003KT 10SM CLR 04/04 A3001 RMK AO2 SLP169 T00440039", (c) => {
         // https://aviationweather.gov/metar#2
@@ -229,6 +235,7 @@ describe("METAR Parsing Tests", () => {
         assert.deepStrictEqual(result.barometer?.kpa, 2970 / 10 / 2.9529988);
         assert.deepStrictEqual(result.barometer?.mb, 2970 / 2.9529988);
         assert.deepStrictEqual(result.flight_category, "LIFR");
+        writeArtifact("KFSO.json", result);
     });
     it("EHAM 100125Z 33004KT CAVOK M00/M01 Q1026 NOSIG", (c) => {
         // EHAM with CAVOK

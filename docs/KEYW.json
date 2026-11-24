@@ -1,0 +1,57 @@
+{
+  "raw_text": "KEYW 041053Z AUTO 13005KT 10SM CLR 24/22 A3000 RMK AO2 SLP159 T02440222",
+  "raw_parts": [
+    "KEYW",
+    "041053Z",
+    "AUTO",
+    "13005KT",
+    "10SM",
+    "CLR",
+    "24/22",
+    "A3000",
+    "RMK",
+    "AO2",
+    "SLP159",
+    "T02440222"
+  ],
+  "icao": "KEYW",
+  "observed": "2026-11-04T10:53:04.680Z",
+  "forecastFrom": null,
+  "forecastTo": null,
+  "wind": {
+    "degrees": 130,
+    "speed_kts": 5,
+    "speed_mps": 2.572222212219136,
+    "gust_kts": null,
+    "gust_mps": null,
+    "degrees_from": null,
+    "degrees_to": null
+  },
+  "visibility": {
+    "miles": 10,
+    "miles_text": "10",
+    "meters": 16093.44,
+    "meters_text": "16000"
+  },
+  "conditions": [],
+  "clouds": [],
+  "ceiling": null,
+  "temperature": {
+    "celsius": 24,
+    "fahrenheit": 75.2
+  },
+  "dewpoint": {
+    "celsius": 22,
+    "fahrenheit": 71.6
+  },
+  "humidity": {
+    "percent": 88.59935257199315
+  },
+  "barometer": {
+    "hg": 30,
+    "kpa": 101.59164304435207,
+    "mb": 1015.9164304435207
+  },
+  "flight_category": "VFR",
+  "icao_flight_category": "VFR"
+}
