@@ -7,6 +7,9 @@ import * as convert from "./convert.js";
 import type { Metar } from "./metar-parser.type.js";
 
 function writeArtifact(filename: string, result: Metar) {
+  if (!process.env.WRITE_ARTIFACTS) {
+    return;
+  }
   fs.writeFileSync(path.join(import.meta.dirname, "..", "docs", filename), JSON.stringify(result, null, 2), "utf-8");
 }
 
