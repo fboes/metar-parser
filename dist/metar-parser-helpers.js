@@ -36,13 +36,14 @@ export function metarTemperature(temperatureString) {
 /**
  * @see http://andrew.rsmas.miami.edu/bmcnoldy/Humidity.html
  */
-export function relativeHumidityPercent(temp, dew) {
+export function relativeHumidity(temp, dew) {
     if (dew === null || temp === null) {
         return null;
     }
-    return ((Math.exp((17.625 * dew.celsius) / (243.04 + dew.celsius)) /
+    const percent = (Math.exp((17.625 * dew.celsius) / (243.04 + dew.celsius)) /
         Math.exp((17.625 * temp.celsius) / (243.04 + temp.celsius))) *
-        100);
+        100;
+    return { percent };
 }
 export function flightCategoryUs(visibility, ceiling) {
     if (visibility === null) {
@@ -66,12 +67,12 @@ export function flightCategoryIcao(visibility, ceiling) {
     return visibility.meters >= 5000 && (ceiling === null || ceiling.feet >= 1500) ? "VFR" : "IFR";
 }
 /**
- * @returns the lowest cloud layer reporting `BKN` or `OVC`, or undefined if
- *   not such cloud layer was found.
+ * @returns the lowest cloud layer reporting `BKN`, `OVC` or `VV`,
+ *   or undefined if not such cloud layer was found.
  */
 function findCeiling(clouds) {
     return clouds.find((c) => {
-        return c.code === "BKN" || c.code === "OVC";
+        return c.code === "BKN" || c.code === "OVC" || c.code === "VV";
     });
 }
 /**

@@ -227,7 +227,7 @@ function parseTemperature(metarPart: string, metarObject: Metar, mode: ParserMod
   if (temp) {
     metarObject.temperature = MetarParserHelpers.metarTemperature(temp ?? "//");
     metarObject.dewpoint = MetarParserHelpers.metarTemperature(dewpoint ?? "//");
-    metarObject.humidity.percent = MetarParserHelpers.relativeHumidityPercent(
+    metarObject.humidity = MetarParserHelpers.relativeHumidity(
       metarObject.temperature,
       metarObject.dewpoint,
     );
@@ -241,8 +241,8 @@ function parsePressure(metarPart: string, metarObject: Metar, mode: ParserMode):
   if (!unit || !value) {
     return mode;
   }
-  let hg = Number(value);
-  hg /= unit === "Q" ? 10 : 100;
+  
+  const hg = Number(value) / (unit === "Q" ? 10 : 100);
   metarObject.barometer = {
     hg: unit === "Q" ? convert.kpaToInhg(hg) : hg,
     kpa: unit === "Q" ? hg : convert.inhgToKpa(hg),
@@ -276,14 +276,8 @@ function initializeMetarObject(metarString: string): Metar {
     ceiling: null,
     temperature: null,
     dewpoint: null,
-    humidity: {
-      percent: null,
-    },
-    barometer: {
-      hg: null,
-      kpa: null,
-      mb: null,
-    },
+    humidity: null,
+    barometer: null,
     flight_category: null,
     icao_flight_category: null,
   };

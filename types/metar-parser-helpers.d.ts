@@ -1,4 +1,4 @@
-import type { MetarVisibility, MetarCloudCode, MetarCloud, MetarTemperature, MetarCeiling, MetarFlightCategory as MetarUsFlightCategory, MetarIcaoFlightCategory } from "./metar-parser.type.js";
+import type { MetarVisibility, MetarCloudCode, MetarCloud, MetarTemperature, MetarCeiling, MetarFlightCategory as MetarUsFlightCategory, MetarIcaoFlightCategory, MetarHumidity } from "./metar-parser.type.js";
 /**
  * @param {Number} value dito
  * @param {Number} toNext round to next full xxxx
@@ -11,7 +11,7 @@ export declare function metarTemperature(temperatureString: string): MetarTemper
 /**
  * @see http://andrew.rsmas.miami.edu/bmcnoldy/Humidity.html
  */
-export declare function relativeHumidityPercent(temp: MetarTemperature | null, dew: MetarTemperature | null): number | null;
+export declare function relativeHumidity(temp: MetarTemperature | null, dew: MetarTemperature | null): MetarHumidity | null;
 export declare function flightCategoryUs(visibility: MetarVisibility | null, ceiling: MetarCeiling | null): MetarUsFlightCategory | null;
 export declare function flightCategoryIcao(visibility: MetarVisibility | null, ceiling: MetarCeiling | null): MetarIcaoFlightCategory | null;
 /**

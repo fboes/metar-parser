@@ -2,6 +2,9 @@
 
 ## [Unreleaed]
 
+- Humidity may not be provided, returning `null`
+- Pressure may not be provided, returning `null`
+
 ## [4.0.0]
 
 - Updated ESLint

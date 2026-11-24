@@ -23,17 +23,17 @@ export interface MetarCloud {
     meters: number;
 }
 /**
- * Ceiling values of lowest cloud layer reporting `BKN` or `OVC`.
+ * Ceiling values of lowest cloud layer reporting `BKN`, `OVC` or `VV`.
  * Values will be `null` if no such layer was found.
  */
 export interface MetarCeiling {
     /**
-     * Ceiling in feet of lowest cloud layer reporting `BKN` or `OVC`.
+     * Ceiling in feet of lowest cloud layer reporting `BKN`, `OVC` or `VV`.
      * Ceiling in feet will be `null` if no such layer was found.
      */
     feet: number;
     /**
-     * Ceiling in meters of lowest cloud layer reporting `BKN` or `OVC`.
+     * Ceiling in meters of lowest cloud layer reporting `BKN`, `OVC` or `VV`.
      * Ceiling in meters will be `null` if no such layer was found.
      */
     meters: number;
@@ -43,12 +43,12 @@ export interface MetarTemperature {
     fahrenheit: number;
 }
 export interface MetarHumidity {
-    percent: number | null;
+    percent: number;
 }
 export interface MetarPressure {
-    hg: number | null;
-    kpa: number | null;
-    mb: number | null;
+    hg: number;
+    kpa: number;
+    mb: number;
 }
 export type MetarIcaoFlightCategory = "VFR" | "IFR";
 export type MetarFlightCategory = MetarIcaoFlightCategory | "MVFR" | "LIFR";
@@ -66,8 +66,8 @@ export interface Metar {
     ceiling: MetarCeiling | null;
     temperature: MetarTemperature | null;
     dewpoint: MetarTemperature | null;
-    humidity: MetarHumidity;
-    barometer: MetarPressure;
+    humidity: MetarHumidity | null;
+    barometer: MetarPressure | null;
     flight_category: MetarFlightCategory | null;
     icao_flight_category: MetarIcaoFlightCategory | null;
 }

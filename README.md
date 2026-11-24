@@ -19,7 +19,7 @@ This METAR parser returns the following parts of a METAR string:
 
 It also provides TypeScript type definitions.
 
-Please be aware that some values may come up bein `null`. This may be caused by missing information in the original METAR information.
+Please be aware that some values may become `null`, caused by missing information in the original METAR information. This behavior is intentional and needs to be handled by your implementation.
 
 ## Code example
 

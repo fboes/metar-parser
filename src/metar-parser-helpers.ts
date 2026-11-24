@@ -7,6 +7,7 @@ import type {
   MetarCeiling,
   MetarFlightCategory as MetarUsFlightCategory,
   MetarIcaoFlightCategory,
+  MetarHumidity,
 } from "./metar-parser.type.js";
 
 /**
@@ -50,15 +51,17 @@ export function metarTemperature(temperatureString: string): MetarTemperature | 
 /**
  * @see http://andrew.rsmas.miami.edu/bmcnoldy/Humidity.html
  */
-export function relativeHumidityPercent(temp: MetarTemperature | null, dew: MetarTemperature | null): number | null {
+export function relativeHumidity(temp: MetarTemperature | null, dew: MetarTemperature | null): MetarHumidity | null {
   if (dew === null || temp === null) {
     return null;
   }
-  return (
+
+  const percent =
     (Math.exp((17.625 * dew.celsius) / (243.04 + dew.celsius)) /
       Math.exp((17.625 * temp.celsius) / (243.04 + temp.celsius))) *
-    100
-  );
+    100;
+
+  return { percent };
 }
 
 export function flightCategoryUs(
@@ -91,12 +94,12 @@ export function flightCategoryIcao(
 }
 
 /**
- * @returns the lowest cloud layer reporting `BKN` or `OVC`, or undefined if
- *   not such cloud layer was found.
+ * @returns the lowest cloud layer reporting `BKN`, `OVC` or `VV`,
+ *   or undefined if not such cloud layer was found.
  */
 function findCeiling(clouds: MetarCloud[]): MetarCloud | undefined {
   return clouds.find((c) => {
-    return c.code === "BKN" || c.code === "OVC";
+    return c.code === "BKN" || c.code === "OVC" || c.code === "VV";
   });
 }
 
