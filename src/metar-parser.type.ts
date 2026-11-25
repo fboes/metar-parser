@@ -1,4 +1,6 @@
 export interface MetarCode {
+  intensity?: string;
+  vicinity?: string;
   code: string;
 }
 
@@ -64,12 +66,13 @@ export type MetarIcaoFlightCategory = "VFR" | "IFR";
 export type MetarFlightCategory = MetarIcaoFlightCategory | "MVFR" | "LIFR";
 
 export interface Metar {
+  type: "METAR" | "TAF";
   raw_text: string;
   raw_parts: string[];
   icao: string;
   observed: Date;
-  forecastFrom: Date | null;
-  forecastTo: Date | null;
+  forecastFrom?: Date;
+  forecastTo?: Date;
 
   wind: MetarWind;
   visibility: MetarVisibility | null;

@@ -27,13 +27,12 @@ export const metarParser = (metarString: string): Metar => {
   const metarObject = initializeMetarObject(metarString);
 
   let mode: ParserMode = 0;
-  let isTAF = false;
   metarObject.raw_parts.forEach((metarPart) => {
     if (mode === 0 && metarPart.match(/^(METAR|TAF)$/)) {
-      isTAF = metarPart === "TAF";
+      metarObject.type = metarPart as "TAF" | "METAR";
       return;
     }
-    if (!isTAF && mode > 1 && mode < 3 && metarPart.match(/^(\d+|\/{2,4})(?:\/(\d+))?(SM)?$/)) {
+    if (metarObject.type === "METAR" && mode > 1 && mode < 3 && metarPart.match(/^(\d+|\/{2,4})(?:\/(\d+))?(SM)?$/)) {
       mode = 3; // no wind reported
     }
     if (mode > 2 && mode < 5 && metarPart.match(/^(FEW|SCT|BKN|OVC|VV)(\d+)?/)) {
@@ -189,19 +188,14 @@ function parseVariableWind(metarPart: string, metarObject: Metar): void {
 }
 
 function parseCondition(metarPart: string, metarObject: Metar): void {
-  const match = metarPart.match(/^(\+|-|VC|RE)?([A-Z][A-Z])([A-Z][A-Z])?([A-Z][A-Z])?$/);
-  if (match) {
-    if (!metarObject.conditions) {
-      metarObject.conditions = [];
-    }
-    match
-      .filter((m, index) => {
-        return index !== 0 && m;
-      })
-      .forEach((m) => {
-        metarObject.conditions.push({ code: m });
-      });
+  const [, intensity, vicinity, code] = metarPart.match(/^(\+|-)?(VC|RE)?([A-Z]{2}(?:[A-Z]{2})?)$/) || [];
+  if (!code) {
+    return;
   }
+  if (!metarObject.conditions) {
+    metarObject.conditions = [];
+  }
+  metarObject.conditions.push({ intensity, vicinity, code });
 }
 
 function parseClouds(metarPart: string, metarObject: Metar) {
@@ -242,12 +236,11 @@ function parsePressure(metarPart: string, metarObject: Metar, mode: ParserMode):
 
 function initializeMetarObject(metarString: string): Metar {
   return {
+    type: "METAR",
     raw_text: metarString,
     raw_parts: MetarParserHelpers.metarSplit(metarString),
     icao: "",
     observed: new Date(0),
-    forecastFrom: null,
-    forecastTo: null,
     wind: {
       degrees: null,
       speed_kts: null,

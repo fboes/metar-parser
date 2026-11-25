@@ -1,4 +1,5 @@
 {
+  "type": "METAR",
   "raw_text": "KEYW 041053Z AUTO 13005KT 10SM CLR 24/22 A3000 RMK AO2 SLP159 T02440222",
   "raw_parts": [
     "KEYW",
@@ -16,8 +17,6 @@
   ],
   "icao": "KEYW",
   "observed": "2026-11-04T10:53:00.000Z",
-  "forecastFrom": null,
-  "forecastTo": null,
   "wind": {
     "degrees": 130,
     "speed_kts": 5,

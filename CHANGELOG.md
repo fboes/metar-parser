@@ -2,6 +2,8 @@
 
 ## [Unreleaed]
 
+- Improved parsing of conditions, adding new properties for intensity and vicinity
+
 ## [4.1.0] - 2026-11-24
 
 - Humidity may not be provided, returning `null`

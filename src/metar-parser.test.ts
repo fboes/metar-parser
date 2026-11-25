@@ -10,7 +10,9 @@ function writeArtifact(filename: string, result: Metar) {
   if (!process.env.WRITE_ARTIFACTS) {
     return;
   }
-  fs.writeFileSync(path.join(import.meta.dirname, "..", "docs", filename), JSON.stringify(result, null, 2), "utf-8");
+  const pathFile = path.join(import.meta.dirname, "..", "docs", filename);
+  console.log(`Writing ${pathFile}...`);
+  fs.writeFileSync(pathFile, JSON.stringify(result, null, 2), "utf-8");
 }
 
 describe("METAR Parsing Tests", () => {
@@ -129,7 +131,8 @@ describe("METAR Parsing Tests", () => {
     assert.deepStrictEqual(result.wind.gust_mps, null);
     assert.deepStrictEqual(result.visibility?.meters_text, "1500");
     assert.deepStrictEqual(result.visibility?.meters, 1400);
-    assert.deepStrictEqual(result.conditions, [{ code: "+" }, { code: "SN" }]);
+    assert.deepStrictEqual(result.conditions[0]?.intensity, "+");
+    assert.deepStrictEqual(result.conditions[0]?.code, "SN");
     assert.deepStrictEqual(result.clouds.length, 2);
     assert.deepStrictEqual(result.clouds[0]?.feet, 2200);
     assert.deepStrictEqual(result.clouds[0]?.code, "BKN");
@@ -155,14 +158,9 @@ describe("METAR Parsing Tests", () => {
     assert.deepStrictEqual(result.wind.gust_kts, null);
     assert.deepStrictEqual(result.visibility?.meters_text, "1000");
     assert.deepStrictEqual(result.visibility?.meters, convert.milesToMeters(0.5));
-    //   ["conditions", [{ code: "VC" }, { code: "TS" }, { code: "SN" }, { code: "FZ" }, { code: "FG" }]],
-    //   [
-    //     "clouds",
-    //     [
-    //       { base_feet_agl: 300, code: "BKN" },
-    //       { base_feet_agl: 1000, code: "OVC" },
-    //     ],
-    //   ],
+    assert.deepStrictEqual(result.conditions[0]?.vicinity, "VC");
+    assert.deepStrictEqual(result.conditions[0]?.code, "TS");
+    assert.deepStrictEqual(result.conditions[1]?.code, "SN");
     assert.deepStrictEqual(result.temperature?.celsius, -2);
     assert.deepStrictEqual(result.temperature?.fahrenheit, 28.4);
     assert.deepStrictEqual(result.barometer?.hg, 30.06);
@@ -258,7 +256,8 @@ describe("METAR Parsing Tests", () => {
     const result = metarParser(metar);
 
     assert.deepStrictEqual(result.icao, "KSFO");
-    //   ["conditions", [{ code: "-" }, { code: "RA" }]],
+    assert.deepStrictEqual(result.conditions[0]?.intensity, "-");
+    assert.deepStrictEqual(result.conditions[0]?.code, "RA");
     assert.deepStrictEqual(result.visibility?.meters_text, "2500");
     assert.deepStrictEqual(result.visibility?.meters, convert.milesToMeters(1.5));
     assert.deepStrictEqual(result.temperature?.celsius, 15);
@@ -306,10 +305,8 @@ describe("METAR Parsing Tests", () => {
     // AUTO does stuff?
     const metar = c.name;
     const result = metarParser(metar);
-
-    //console.log(result);
-
     assert.deepStrictEqual(result.icao, "KDVO");
+    assert.deepStrictEqual(result.conditions[0]?.code, "BR");
     assert.deepStrictEqual(result.visibility?.miles, 4);
     assert.deepStrictEqual(result.visibility?.meters_text, "6500");
     assert.deepStrictEqual(result.visibility?.meters, convert.milesToMeters(4));
@@ -350,6 +347,7 @@ describe("METAR Parsing Tests", () => {
     const result = metarParser(metar);
 
     assert.deepStrictEqual(result.icao, "KLAX");
+    assert.deepStrictEqual(result.conditions[0]?.code, "SHRA");
     assert.deepStrictEqual(result.wind.degrees, 190);
     assert.deepStrictEqual(result.clouds.length, 3);
   });
@@ -360,8 +358,6 @@ TEMPO 2520/2524 4SM -SHRA BKN025
 FM260200 33010KT P6SM FEW050`, (c) => {
     const metar = c.name;
     const result = metarParser(metar);
-
-    // console.log(result);
 
     assert.deepStrictEqual(result.icao, "KJFK");
     assert.deepStrictEqual(result.wind.degrees, 310);
@@ -375,8 +371,6 @@ TEMPO 1915/1916 19020G30KT 2000 +SHRA BKN002 BKN020CB
 TEMPO 1916/1918 1200 +DZ BKN001`, (c) => {
     const metar = c.name;
     const result = metarParser(metar);
-
-    // console.log(result);
 
     assert.deepStrictEqual(result.icao, "EGOV");
     assert.deepStrictEqual(result.wind.degrees, 200);

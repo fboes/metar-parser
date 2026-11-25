@@ -35,6 +35,7 @@ const metarObject = metarParser(
 
 ```json
 {
+  "type": "METAR",
   "raw_text": "KSFO 070121Z 19023KT 1 1/2SM R28R/6000VP6000FT -RA BKN004 BKN013 OVC035 15/12 A2970 RMK AO2 T01500122 PNO $",
   "raw_parts": [
     "KSFO",
@@ -55,7 +56,7 @@ const metarObject = metarParser(
     "$"
   ],
   "icao": "KSFO",
-  "observed": "2025-02-07T01:21:49.963Z",
+  "observed": "2026-11-07T01:21:00.000Z",
   "wind": {
     "degrees": 190,
     "speed_kts": 23,
@@ -73,9 +74,7 @@ const metarObject = metarParser(
   },
   "conditions": [
     {
-      "code": "-"
-    },
-    {
+      "intensity": "-",
       "code": "RA"
     }
   ],
