@@ -1,6 +1,6 @@
 # Change log
 
-## [Unreleaed]
+## [4.2.0] - 2026-11-25
 
 - Improved parsing of conditions, adding new properties for intensity and vicinity
 
