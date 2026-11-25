@@ -199,9 +199,9 @@ function parseCondition(metarPart: string, metarObject: Metar): void {
 }
 
 function parseClouds(metarPart: string, metarObject: Metar) {
-  const [, cloudType, cloudAltitude] = metarPart.match(/^(FEW|SCT|BKN|OVC|VV)(\d+)/) || [];
-  if (cloudType && cloudAltitude) {
-    metarObject.clouds.push(MetarParserHelpers.metarCloud(cloudType as MetarCloudCode, cloudAltitude));
+  const [, coverageCode, cloudAltitude, cloudType] = metarPart.match(/^(FEW|SCT|BKN|OVC|VV)(\d+)([A-Z]{2,3})?/) || [];
+  if (coverageCode && cloudAltitude) {
+    metarObject.clouds.push(MetarParserHelpers.metarCloud(coverageCode as MetarCloudCode, cloudAltitude, cloudType));
   }
 }
 

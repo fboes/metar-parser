@@ -25,6 +25,7 @@ describe("METAR Parsing Tests", () => {
     assert.deepStrictEqual(result.wind.degrees, 130);
     assert.deepStrictEqual(result.wind.speed_kts, 5);
     assert.deepStrictEqual(result.wind.gust_kts, null);
+    assert.deepStrictEqual(result.conditions.length, 0);
     assert.deepStrictEqual(result.visibility?.meters_text, "16000");
     assert.deepStrictEqual(result.barometer?.kpa, 3000 / 10 / 2.9529988);
     assert.deepStrictEqual(result.flight_category, "VFR");
@@ -70,6 +71,7 @@ describe("METAR Parsing Tests", () => {
     assert.deepStrictEqual(result.wind.degrees, 20);
     assert.deepStrictEqual(result.wind.speed_kts, 13);
     assert.deepStrictEqual(result.wind.gust_kts, 17);
+    assert.deepStrictEqual(result.conditions.length, 0);
     assert.deepStrictEqual(result.visibility?.meters_text, "16000");
     assert.deepStrictEqual(result.visibility?.miles_text, "10", "result.visibility?.miles");
     assert.deepStrictEqual(result.temperature?.celsius, 17);
@@ -87,6 +89,7 @@ describe("METAR Parsing Tests", () => {
     assert.deepStrictEqual(result.wind.degrees, 50);
     assert.deepStrictEqual(result.wind.speed_kts, 12);
     assert.deepStrictEqual(result.wind.gust_kts, null);
+    assert.deepStrictEqual(result.conditions.length, 0);
     assert.deepStrictEqual(result.visibility?.meters_text, "16000");
     assert.deepStrictEqual(result.visibility?.miles_text, "10");
     assert.deepStrictEqual(result.temperature?.celsius, 18);
@@ -106,6 +109,7 @@ describe("METAR Parsing Tests", () => {
     assert.deepStrictEqual(result.wind.speed_mps, convert.ktsToMps(10));
     assert.deepStrictEqual(result.wind.gust_kts, null);
     assert.deepStrictEqual(result.wind.gust_mps, null);
+    assert.deepStrictEqual(result.conditions.length, 0);
     assert.deepStrictEqual(result.visibility?.meters_text, "10000");
     assert.deepStrictEqual(result.visibility?.meters, 9999);
     assert.deepStrictEqual(result.clouds.length, 1);
@@ -178,6 +182,7 @@ describe("METAR Parsing Tests", () => {
     assert.deepStrictEqual(result.wind.gust_kts, null);
     assert.deepStrictEqual(result.visibility?.meters_text, "16000");
     assert.deepStrictEqual(result.visibility?.miles_text, "10");
+    assert.deepStrictEqual(result.conditions.length, 0);
     assert.deepStrictEqual(result.temperature?.celsius, 24);
     assert.deepStrictEqual(result.barometer?.kpa, 3000 / 10 / 2.9529988);
     assert.deepStrictEqual(result.flight_category, "VFR");
@@ -193,6 +198,7 @@ describe("METAR Parsing Tests", () => {
     assert.deepStrictEqual(result.wind.gust_kts, null);
     assert.deepStrictEqual(result.visibility?.meters_text, "6000");
     assert.deepStrictEqual(result.visibility?.meters, 6000);
+    assert.deepStrictEqual(result.conditions.length, 0);
     //   [
     //     "clouds",
     //     [
@@ -218,7 +224,9 @@ describe("METAR Parsing Tests", () => {
     assert.deepStrictEqual(result.wind.gust_kts, null);
     assert.deepStrictEqual(result.visibility?.meters_text, "10000");
     assert.deepStrictEqual(result.visibility?.meters, 9999);
-    //   ["clouds", [{ base_feet_agl: 9000, code: "SCT" }]],
+    assert.deepStrictEqual(result.clouds[0]?.code, "SCT");
+    assert.deepStrictEqual(result.clouds[0]?.feet, 9000);
+    assert.deepStrictEqual(result.conditions.length, 0);
     assert.deepStrictEqual(result.temperature?.celsius, 0);
     assert.deepStrictEqual(result.temperature?.fahrenheit, 32);
     assert.deepStrictEqual(result.barometer?.kpa, 3052 / 10 / 2.9529988);
@@ -234,13 +242,11 @@ describe("METAR Parsing Tests", () => {
     assert.deepStrictEqual(result.wind.degrees, 190);
     assert.deepStrictEqual(result.wind.speed_kts, 6);
     assert.deepStrictEqual(result.wind.gust_kts, null);
-    //   [
-    //     "clouds",
-    //     [
-    //       { base_feet_agl: 2400, code: "FEW" },
-    //       { base_feet_agl: 3900, code: "BKN" },
-    //     ],
-    //   ],
+    assert.deepStrictEqual(result.clouds[0]?.code, "FEW");
+    assert.deepStrictEqual(result.clouds[0]?.feet, 2400);
+    assert.deepStrictEqual(result.clouds[1]?.code, "BKN");
+    assert.deepStrictEqual(result.clouds[1]?.feet, 3900);
+    assert.deepStrictEqual(result.conditions.length, 0);
     assert.deepStrictEqual(result.temperature?.celsius, 26);
     assert.deepStrictEqual(result.barometer?.kpa, 3000 / 10 / 2.9529988);
     assert.deepStrictEqual(
@@ -262,7 +268,8 @@ describe("METAR Parsing Tests", () => {
     assert.deepStrictEqual(result.visibility?.meters, convert.milesToMeters(1.5));
     assert.deepStrictEqual(result.temperature?.celsius, 15);
     assert.deepStrictEqual(result.temperature?.fahrenheit, 59);
-    //   ["dewpoint", { celsius: 12assert.deepStrictEqual(result.temperature?.fahrenheit, 53.6 ],
+    assert.deepStrictEqual(result.dewpoint?.celsius, 12);
+    assert.deepStrictEqual(result.dewpoint?.fahrenheit, 53.6);
     assert.deepStrictEqual(result.barometer?.kpa, 2970 / 10 / 2.9529988);
     assert.deepStrictEqual(result.barometer?.mb, 2970 / 2.9529988);
     assert.deepStrictEqual(result.flight_category, "LIFR");
@@ -278,9 +285,11 @@ describe("METAR Parsing Tests", () => {
     assert.deepStrictEqual(result.visibility?.miles, 10);
     assert.deepStrictEqual(result.visibility?.meters_text, "16000", "result.visibility?.meters");
     assert.deepStrictEqual(result.visibility?.meters, convert.milesToMeters(10));
+    assert.deepStrictEqual(result.conditions.length, 0);
     assert.deepStrictEqual(result.temperature?.celsius, -0);
     assert.deepStrictEqual(result.temperature?.fahrenheit, 32);
-    //   ["dewpoint", { celsius: -1assert.deepStrictEqual(result.temperature?.fahrenheit, 30.2 ],
+    assert.deepStrictEqual(result.dewpoint?.celsius, -1);
+    assert.deepStrictEqual(result.dewpoint?.fahrenheit, 30.2);
     assert.deepStrictEqual(result.barometer?.kpa, 102.6);
     assert.deepStrictEqual(result.flight_category, "VFR");
   });
@@ -293,6 +302,7 @@ describe("METAR Parsing Tests", () => {
     assert.deepStrictEqual(result.visibility?.miles, 10);
     assert.deepStrictEqual(result.visibility?.meters_text, "16000");
     assert.deepStrictEqual(result.visibility?.meters, convert.milesToMeters(10));
+    assert.deepStrictEqual(result.conditions.length, 0);
     assert.deepStrictEqual(result.wind.degrees, null);
     assert.deepStrictEqual(result.wind.speed_kts, 3);
     assert.deepStrictEqual(result.wind.gust_kts, null);
@@ -306,10 +316,10 @@ describe("METAR Parsing Tests", () => {
     const metar = c.name;
     const result = metarParser(metar);
     assert.deepStrictEqual(result.icao, "KDVO");
-    assert.deepStrictEqual(result.conditions[0]?.code, "BR");
     assert.deepStrictEqual(result.visibility?.miles, 4);
     assert.deepStrictEqual(result.visibility?.meters_text, "6500");
     assert.deepStrictEqual(result.visibility?.meters, convert.milesToMeters(4));
+    assert.deepStrictEqual(result.conditions[0]?.code, "BR");
   });
 
   it("LFMK 151400Z AUTO 06007KT 030V100 CAVOK ///// Q1017 NOSIG=", (c) => {
@@ -317,6 +327,7 @@ describe("METAR Parsing Tests", () => {
     const result = metarParser(metar);
 
     assert.deepStrictEqual(result.icao, "LFMK");
+    assert.deepStrictEqual(result.conditions.length, 0);
     assert.deepStrictEqual(result.clouds.length, 0);
     assert.deepStrictEqual(result.temperature?.celsius, undefined);
     assert.deepStrictEqual(result.dewpoint?.celsius, undefined);
@@ -329,16 +340,23 @@ describe("METAR Parsing Tests", () => {
     const result = metarParser(metar);
 
     assert.deepStrictEqual(result.icao, "LFMK");
+    assert.deepStrictEqual(result.conditions.length, 0);
     assert.deepStrictEqual(result.barometer?.mb, 1011);
     assert.deepStrictEqual(result.wind.degrees_from, 260);
     assert.deepStrictEqual(result.wind.degrees_to, 320);
   });
 
-  it("KJFK 210751Z 32016G28KT 10SM SCT065 BKN200 M04/M13 A3002 RMK AO2 PK WND 32028/0748 SLP164 T10441128 $", (c) => {
+  it("KJFK 210751Z 32016G28KT 10SM SCT016TCU BKN200 M04/M13 A3002 RMK AO2 PK WND 32028/0748 SLP164 T10441128 $", (c) => {
     const metar = c.name;
     const result = metarParser(metar);
 
     assert.deepStrictEqual(result.icao, "KJFK");
+    assert.deepStrictEqual(result.clouds[0]?.code, "SCT");
+    assert.deepStrictEqual(result.clouds[0]?.feet, 1600);
+    assert.deepStrictEqual(result.clouds[0]?.cloudType, "TCU");
+    assert.deepStrictEqual(result.clouds[1]?.code, "BKN");
+    assert.deepStrictEqual(result.clouds[1]?.feet, 20000);
+    assert.deepStrictEqual(result.conditions.length, 0);
     assert.deepStrictEqual(result.ceiling?.feet, 20000);
   });
 
@@ -360,6 +378,7 @@ FM260200 33010KT P6SM FEW050`, (c) => {
     const result = metarParser(metar);
 
     assert.deepStrictEqual(result.icao, "KJFK");
+    assert.deepStrictEqual(result.type, "TAF");
     assert.deepStrictEqual(result.wind.degrees, 310);
     assert.deepStrictEqual(result.clouds.length, 2);
     assert.deepStrictEqual(result.forecastFrom?.getUTCDate(), 25);

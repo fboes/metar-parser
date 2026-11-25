@@ -6,7 +6,7 @@ import type { MetarVisibility, MetarCloudCode, MetarCloud, MetarTemperature, Met
  */
 export declare function round(value: number, toNext?: number): number;
 export declare function metarVisibility(visibility_miles: number, visibility_meters: number): MetarVisibility;
-export declare function metarCloud(code: MetarCloudCode, hundredFeet: string): MetarCloud;
+export declare function metarCloud(code: MetarCloudCode, hundredFeet: string, cloudType: string | undefined): MetarCloud;
 export declare function metarTemperature(temperatureString: string): MetarTemperature | null;
 /**
  * @see http://andrew.rsmas.miami.edu/bmcnoldy/Humidity.html

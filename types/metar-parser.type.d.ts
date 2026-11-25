@@ -23,6 +23,7 @@ export interface MetarCloud {
     code: MetarCloudCode;
     feet: number;
     meters: number;
+    cloudType?: string;
 }
 /**
  * Ceiling values of lowest cloud layer reporting `BKN`, `OVC` or `VV`.

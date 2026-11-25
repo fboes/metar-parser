@@ -15,12 +15,13 @@ export function metarVisibility(visibility_miles, visibility_meters) {
         meters_text: String(round(visibility_meters, 500)),
     };
 }
-export function metarCloud(code, hundredFeet) {
+export function metarCloud(code, hundredFeet, cloudType) {
     const feet = Number(hundredFeet) * 100;
     return {
-        code: code,
-        feet: feet,
+        code,
+        feet,
         meters: convert.feetToMeters(feet),
+        cloudType,
     };
 }
 export function metarTemperature(temperatureString) {

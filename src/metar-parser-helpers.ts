@@ -28,12 +28,13 @@ export function metarVisibility(visibility_miles: number, visibility_meters: num
   };
 }
 
-export function metarCloud(code: MetarCloudCode, hundredFeet: string): MetarCloud {
+export function metarCloud(code: MetarCloudCode, hundredFeet: string, cloudType: string | undefined): MetarCloud {
   const feet = Number(hundredFeet) * 100;
   return {
-    code: code,
-    feet: feet,
+    code,
+    feet,
     meters: convert.feetToMeters(feet),
+    cloudType,
   };
 }
 

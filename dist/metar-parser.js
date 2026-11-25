@@ -160,9 +160,9 @@ function parseCondition(metarPart, metarObject) {
     metarObject.conditions.push({ intensity, vicinity, code });
 }
 function parseClouds(metarPart, metarObject) {
-    const [, cloudType, cloudAltitude] = metarPart.match(/^(FEW|SCT|BKN|OVC|VV)(\d+)/) || [];
-    if (cloudType && cloudAltitude) {
-        metarObject.clouds.push(MetarParserHelpers.metarCloud(cloudType, cloudAltitude));
+    const [, coverageCode, cloudAltitude, cloudType] = metarPart.match(/^(FEW|SCT|BKN|OVC|VV)(\d+)([A-Z]{2,3})?/) || [];
+    if (coverageCode && cloudAltitude) {
+        metarObject.clouds.push(MetarParserHelpers.metarCloud(coverageCode, cloudAltitude, cloudType));
     }
 }
 function parseTemperature(metarPart, metarObject, mode) {

@@ -27,6 +27,7 @@ export interface MetarCloud {
   code: MetarCloudCode;
   feet: number;
   meters: number;
+  cloudType?: string;
 }
 
 /**
